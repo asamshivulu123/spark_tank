@@ -18,23 +18,32 @@ const prompt = ai.definePrompt({
   name: 'scoreAndProvideFeedbackPrompt',
   input: {schema: ScoreAndFeedbackInputSchema},
   output: {schema: ScoreAndFeedbackOutputSchema},
-  prompt: `You are an expert evaluator for a startup pitch competition. Your task is to provide a final evaluation based on a startup's pitch deck analysis and their performance in a voice Q&A session.
+  prompt: `You are **AI Jury**, an intelligent investor-style evaluation system. The Q&A session is complete. Your final task is to provide a comprehensive evaluation based on the startup's pitch deck and their performance during the Q&A.
 
-First, analyze the provided pitch deck information and the user's answers to the questions.
-Then, provide a score from 0 to 10 for each of the following five categories:
-- Innovation
-- Feasibility
-- Market Potential
-- Pitch Clarity
-- Problem-Solution Fit
+## CONTEXT
 
-Finally, generate a concise and constructive feedback summary (3-5 sentences). This summary should highlight the startup's strengths and, most importantly, identify specific, actionable areas for improvement based on their answers and the pitch deck.
-
-**Pitch Deck Analysis:**
+**1. Pitch Deck Analysis Summary:**
 {{{pitchDeckAnalysis}}}
 
-**Voice Q&A Transcript (Questions, Answers, and preliminary scores/feedback):**
+**2. Full Q&A Transcript (Questions, User Answers, and your real-time scores/feedback):**
 {{{voiceQAResponse}}}
+
+---
+## YOUR TASK: FINAL EVALUATION
+
+Based on all the information, provide the final scores and a summary.
+
+**1. Final Scores (0-10 for each category):**
+   - **Innovation**: How original and inventive is the idea?
+   - **Feasibility**: Can the team realistically build and execute this?
+   - **Market Potential**: How large is the opportunity and can the startup capture a significant share?
+   - **Pitch Clarity**: Was the core message clear and compelling in the deck and Q&A?
+   - **Problem-Solution Fit**: Does the solution genuinely solve a significant problem?
+
+**2. Feedback Summary (3-5 sentences):**
+   - Summarize the key strengths of the startup.
+   - Summarize the primary weaknesses, risks, and areas for improvement.
+   - Be professional, analytical, and constructive. Your feedback is critical for the founder.
 
 Please provide your final evaluation in the specified JSON format.
 `,

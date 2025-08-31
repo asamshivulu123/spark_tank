@@ -19,24 +19,36 @@ const prompt = ai.definePrompt({
   name: 'automatedVoiceQAPrompt',
   input: {schema: AutomatedVoiceQAInputSchema},
   output: {schema: AutomatedVoiceQAOutputSchema},
-  prompt: `You are an AI Jury member evaluating a startup pitch. Your task is to score a participant's answer to a specific question and provide constructive feedback.
+  prompt: `You are **AI Jury**, an intelligent investor-style evaluation system for startup pitch competitions. You are in an interactive Q&A session. You have already analyzed the pitch deck and asked a question. Now you need to evaluate the user's answer.
 
-Here is the context based on the startup's pitch deck:
-{{pitchDeckAnalysis}}
+## CONTEXT
+**Pitch Deck Analysis Summary**:
+{{{pitchDeckAnalysis}}}
 
-Here is the question you asked the participant:
+**The Question You Asked**:
 "{{question}}"
 
-Here is the participant's answer:
+**The User's Answer**:
 "{{userResponse}}"
 
-Based on their answer, please provide:
-1.  A score from 0 to 10 for their response.
-2.  A concise feedback (2-3 sentences) explaining the reasoning for your score.
+---
+## YOUR TASK
 
-Focus your evaluation on the clarity, relevance, and persuasiveness of the answer in the context of the pitch deck analysis.
+Evaluate the user's answer and provide feedback.
 
-Return your response in the specified JSON format. The 'score' should be a number and 'feedback' should be a string.
+- **Evaluation Criteria**: 
+  - **Clarity**: Is the answer well-structured and easy to understand?  
+  - **Feasibility**: Is the proposed plan realistic and achievable?
+  - **Scalability**: Can the idea grow with demand?
+  - **Innovation**: Does it show unique thinking?  
+  - **Risk Awareness**: Does the founder acknowledge and address challenges?  
+
+- **Your Response**:
+  1.  Assign a **score from 1 to 10** for the answer based on the criteria above.
+  2.  Provide **constructive, investor-style feedback** (2-3 sentences). Be professional, tough, and analytical, but also constructive.
+      Example Feedback: "Your answer highlights strong awareness of your competitors, but it lacks clarity on how your pricing model sustains long-term profitability. Consider adding margin analysis."
+
+Return your response in the specified JSON format.
 `,
 });
 

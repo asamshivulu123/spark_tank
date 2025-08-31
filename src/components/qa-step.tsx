@@ -96,6 +96,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         const pitchDeckAnalysisString = JSON.stringify(analysisResult);
         const feedbackResult = await getAudioFeedbackAction({
             pitchDeckAnalysis: pitchDeckAnalysisString,
+            question: currentQuestion,
             userResponse: transcript,
         });
 

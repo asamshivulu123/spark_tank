@@ -19,21 +19,25 @@ const prompt = ai.definePrompt({
   name: 'automatedVoiceQAPrompt',
   input: {schema: AutomatedVoiceQAInputSchema},
   output: {schema: AutomatedVoiceQAOutputSchema},
-  prompt: `You are an AI Jury member evaluating startup pitches.
+  prompt: `You are an AI Jury member evaluating a startup pitch. Your task is to score a participant's answer to a specific question and provide constructive feedback.
 
-  You have analyzed the pitch deck and generated questions. Now, you are conducting a voice-based Q&A with the participant.
+Here is the context based on the startup's pitch deck:
+{{pitchDeckAnalysis}}
 
-  Based on the participant's response, provide a score and feedback.
+Here is the question you asked the participant:
+"{{question}}"
 
-  Pitch Deck Analysis and Generated Questions: {{{pitchDeckAnalysis}}}
-  Participant Response: {{{userResponse}}}
+Here is the participant's answer:
+"{{userResponse}}"
 
-  Provide a score (0-10) and feedback (3-5 sentences) based on the following criteria:
-  - Innovation
-  - Feasibility
-  - Market Potential
-  - Pitch Clarity
-  - Problem-Solution Fit`,
+Based on their answer, please provide:
+1.  A score from 0 to 10 for their response.
+2.  A concise feedback (2-3 sentences) explaining the reasoning for your score.
+
+Focus your evaluation on the clarity, relevance, and persuasiveness of the answer in the context of the pitch deck analysis.
+
+Return your response in the specified JSON format. The 'score' should be a number and 'feedback' should be a string.
+`,
 });
 
 const automatedVoiceQAFlow = ai.defineFlow(

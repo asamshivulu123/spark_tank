@@ -49,6 +49,9 @@ export const AutomatedVoiceQAInputSchema = z.object({
   pitchDeckAnalysis: z
     .string()
     .describe('The analysis of the pitch deck, including generated questions.'),
+  question: z
+    .string()
+    .describe('The specific question being asked.'),
   userResponse: z
     .string()
     .describe('The user responses from voice converted to text.'),

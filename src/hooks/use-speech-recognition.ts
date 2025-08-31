@@ -48,7 +48,10 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
       } else if (event.error === 'aborted') {
         // This can happen if the user stops the recognition manually.
         // It's not a "real" error we need to show the user.
-      } else {
+      } else if (event.error === 'no-speech') {
+        setError("No speech was detected. Please try again and speak clearly.");
+      }
+      else {
          setError('An error occurred during speech recognition: ' + event.error);
       }
       setIsListening(false);

@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
 
-const ORGANIZER_PASSWORD = process.env.NEXT_PUBLIC_ORGANIZER_PASSWORD || 'pitchperfect';
+const ORGANIZER_PASSWORD = process.env.NEXT_PUBLIC_ORGANIZER_PASSWORD || 'FoundersHub';
 
 export default function OrganizerLoginPage() {
   const [password, setPassword] = useState('');

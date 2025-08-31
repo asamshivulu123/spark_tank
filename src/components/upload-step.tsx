@@ -85,11 +85,12 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
     <div className="flex flex-col justify-center items-center">
       <div className="flex flex-col items-center mb-6">
         <Image
-          src="/founders-hub-logo.png"
+          src="https://ik.imagekit.io/ma8j7tc4p/file_000000009e006230bb897df63b4ca344%20(2).png?updatedAt=1756676907921"
           alt="Founders Hub Logo"
           width={200}
           height={50}
           className="mb-2"
+          priority
         />
         <p className="text-muted-foreground text-sm">
           From idea to Impact with Founders Hub

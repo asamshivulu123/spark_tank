@@ -6,7 +6,6 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
 import type { AnalyzePitchDeckAndGenerateQuestionsInput, AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/lib/types';
 import { AnalyzePitchDeckAndGenerateQuestionsInputSchema, AnalyzePitchDeckAndGenerateQuestionsOutputSchema } from '@/lib/types';
 
@@ -28,23 +27,24 @@ Here is the pitch deck data:
 {{media url=pitchDeckDataUri}}
 
 Ensure the investorQuestions array contains a diverse range of questions, addressing areas such as innovation, feasibility, market potential, pitch clarity, and problem-solution fit.
-`, config: {
+`,
+  config: {
     safetySettings: [
-      {
-        category: 'HARM_CATEGORY_HATE_SPEECH',
-        threshold: 'BLOCK_ONLY_HIGH',
-      },
       {
         category: 'HARM_CATEGORY_DANGEROUS_CONTENT',
         threshold: 'BLOCK_NONE',
       },
       {
         category: 'HARM_CATEGORY_HARASSMENT',
-        threshold: 'BLOCK_MEDIUM_AND_ABOVE',
+        threshold: 'BLOCK_NONE',
+      },
+      {
+        category: 'HARM_CATEGORY_HATE_SPEECH',
+        threshold: 'BLOCK_NONE',
       },
       {
         category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-        threshold: 'BLOCK_LOW_AND_ABOVE',
+        threshold: 'BLOCK_NONE',
       },
     ],
   },

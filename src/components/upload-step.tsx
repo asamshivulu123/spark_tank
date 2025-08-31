@@ -65,7 +65,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
       const result = await analyzeAndGenerateQuestionsAction({ pitchDeckDataUri: dataUri });
       toast({
         title: 'Analysis Complete',
-        description: 'Your pitch deck has been analyzed. The Q&amp;A will begin shortly.',
+        description: 'Your pitch deck has been analyzed. The Q&A will begin shortly.',
       });
       onAnalysisComplete(result, startupName, founderName, dataUri);
     } catch (error) {
@@ -81,20 +81,20 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
   };
 
   return (
-    <div className="flex justify-center items-start">
+    <div className="flex flex-col justify-center items-center">
+      <div className="flex flex-col items-center mb-6">
+        <Image
+          src="/founders-hub-logo.png"
+          alt="Founders Hub Logo"
+          width={200}
+          height={50}
+          className="mb-2"
+        />
+        <p className="text-muted-foreground text-sm">
+          From idea to Impact with Founders Hub
+        </p>
+      </div>
       <Card className="w-full max-w-lg shadow-lg">
-        <div className="flex flex-col items-center pt-6 px-6">
-            <Image
-                src="/founders-hub-logo.png"
-                alt="Founders Hub Logo"
-                width={200}
-                height={50}
-                className="mb-2"
-            />
-            <p className="text-muted-foreground text-sm">
-                From idea to Impact with Founders Hub
-            </p>
-        </div>
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-center">AI Jury Evaluation</CardTitle>

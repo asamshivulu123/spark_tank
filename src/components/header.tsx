@@ -28,15 +28,6 @@ export default function Header() {
           >
             Home
           </Link>
-          <Link
-            href="/dashboard"
-            className={cn(
-              'text-sm font-medium transition-colors hover:text-primary',
-              pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'
-            )}
-          >
-            Dashboard
-          </Link>
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
           <Button asChild>

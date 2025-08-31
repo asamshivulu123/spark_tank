@@ -95,7 +95,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
         <p className="text-foreground text-xl font-bold">
           From idea to Impact with Founders Hub
         </p>
-        <p className="mt-4 text-muted-foreground max-w-2xl">
+        <p className="mt-4 text-chart-5 max-w-2xl text-center">
           SparkTank, hosted by Founders Hub, is a dynamic platform for students and young entrepreneurs to pitch their innovative ideas, receive expert feedback, and compete for recognition and mentorship. It’s designed to ignite creativity, encourage bold thinking, and help the next generation of innovators turn their ideas into reality.
         </p>
       </div>

@@ -37,13 +37,14 @@ async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: 
         return { data, error: null, isApiError: false, isPermissionError: false };
 
     } catch (e: any) {
-        console.error(e); // Log the full error for debugging
+        console.error("Firestore fetch error:", e); // Log the full error for debugging
         const errorMessage = e.message || 'An unknown error occurred.';
-        const isApiError = errorMessage.includes('Cloud Firestore API has not been used');
+        // Check for specific Firestore API not enabled error code or message
+        const isApiError = errorMessage.includes('firestore.googleapis.com') && (errorMessage.includes('not used') || errorMessage.includes('disabled'));
         // A broader check for permission issues
         const isPermissionError = errorMessage.includes('permission-denied') || errorMessage.includes('PERMISSION_DENIED');
         
-        let displayError = 'Failed to fetch data from Firebase. Please check your Firebase project setup.';
+        let displayError = 'Failed to fetch data from Firebase. Please check your project setup and internet connection.';
         if (isApiError) {
             displayError = 'The Cloud Firestore API is not enabled for your project. Please enable it to continue.';
         } else if (isPermissionError) {
@@ -73,7 +74,7 @@ export default async function DashboardPage() {
                             {isApiError && (
                                 <Button asChild>
                                     <Link 
-                                        href="https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=pitch-perfect-ai-qpv8g"
+                                        href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=pitch-perfect-ai-qpv8g`}
                                         target="_blank"
                                     >
                                         Enable Firestore API
@@ -83,7 +84,7 @@ export default async function DashboardPage() {
                             {isPermissionError && !isApiError && (
                                 <Button asChild>
                                     <Link
-                                        href="https://console.firebase.google.com/project/pitch-perfect-ai-qpv8g/firestore/rules"
+                                        href={`https://console.firebase.google.com/project/pitch-perfect-ai-qpv8g/firestore/rules`}
                                         target="_blank"
                                     >
                                         Check Security Rules

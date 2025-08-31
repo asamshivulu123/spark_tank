@@ -25,7 +25,7 @@ export const saveToFirebaseFlow = ai.defineFlow(
       // 1. Upload Pitch Deck to Firebase Storage
       let pitchDeckUrl = '';
       if (input.pitchDeckDataUri) {
-          const storageRef = ref(storage, `pitch-decks/${input.startupName}-${Date.now()}.pdf`);
+          const storageRef = ref(storage, `pitch-decks/${input.startupName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
           const uploadResult = await uploadString(storageRef, input.pitchDeckDataUri, 'data_url');
           pitchDeckUrl = await getDownloadURL(uploadResult.ref);
       }

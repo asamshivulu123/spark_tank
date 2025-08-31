@@ -28,9 +28,9 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
+    recognition.continuous = false; // Changed to false for better accuracy
     recognition.lang = 'en-US';
-    recognition.interimResults = true;
+    recognition.interimResults = false; // Changed to false for better accuracy
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -59,15 +59,14 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
 
     recognition.onresult = (event) => {
       let finalTranscript = '';
-      let interimTranscript = '';
       for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
         } else {
-          interimTranscript += event.results[i][0].transcript;
+           finalTranscript += event.results[i][0].transcript;
         }
       }
-      setTranscript(finalTranscript + interimTranscript);
+      setTranscript(finalTranscript);
     };
 
     recognitionRef.current = recognition;

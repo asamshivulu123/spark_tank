@@ -22,7 +22,6 @@ export const saveToFirebaseFlow = ai.defineFlow(
   },
   async (input) => {
     try {
-      // 1. Upload Pitch Deck to Firebase Storage
       let pitchDeckUrl = '';
       if (input.pitchDeckDataUri) {
           const storageRef = ref(storage, `pitch-decks/${input.startupName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
@@ -30,7 +29,6 @@ export const saveToFirebaseFlow = ai.defineFlow(
           pitchDeckUrl = await getDownloadURL(uploadResult.ref);
       }
 
-      // 2. Prepare data for Firestore
       const totalScore = (
         input.innovationScore +
         input.feasibilityScore +
@@ -53,15 +51,12 @@ export const saveToFirebaseFlow = ai.defineFlow(
         createdAt: serverTimestamp(),
       };
 
-      // 3. Save evaluation data to Firestore
       const docRef = doc(collection(db, 'evaluations'));
       await setDoc(docRef, evaluationData);
 
     } catch (error) {
       console.error('Error saving to Firebase:', error);
-      // We don't want to block the user flow if saving fails
-      // But we should throw an error to be handled by the action
-      throw new Error('Failed to save data to Firebase.');
+      throw new Error('Failed to save data to Firebase. This might be due to Firestore security rules or a disabled API.');
     }
   }
 );

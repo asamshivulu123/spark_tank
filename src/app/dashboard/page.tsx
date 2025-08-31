@@ -11,11 +11,9 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-// This function now returns a more structured result
 async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: string | null; isApiError: boolean; isPermissionError: boolean; }> {
     try {
         const evaluationsCol = collection(db, 'evaluations');
-        // The 'createdAt' field is added by serverTimestamp, so we query by it.
         const q = query(evaluationsCol, orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
     
@@ -25,11 +23,10 @@ async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: 
   
         const data = snapshot.docs.map(doc => {
             const docData = doc.data();
-            const timestamp = docData.createdAt as Timestamp; // Firestore Timestamp
+            const timestamp = docData.createdAt as Timestamp;
             return {
                 id: doc.id,
                 ...docData,
-                // Safely convert timestamp to ISO string
                 timestamp: timestamp?.toDate().toISOString() || new Date().toISOString(),
             } as TeamResult;
         });
@@ -37,11 +34,10 @@ async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: 
         return { data, error: null, isApiError: false, isPermissionError: false };
 
     } catch (e: any) {
-        console.error("Firestore fetch error:", e); // Log the full error for debugging
+        console.error("Firestore fetch error:", e); 
         const errorMessage = e.message || 'An unknown error occurred.';
-        // Check for specific Firestore API not enabled error code or message
+        
         const isApiError = errorMessage.includes('firestore.googleapis.com') && (errorMessage.includes('not used') || errorMessage.includes('disabled'));
-        // A broader check for permission issues
         const isPermissionError = errorMessage.includes('permission-denied') || errorMessage.includes('PERMISSION_DENIED');
         
         let displayError = 'Failed to fetch data from Firebase. Please check your project setup and internet connection.';
@@ -57,8 +53,8 @@ async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: 
 
 
 export default async function DashboardPage() {
-    // Destructure the detailed error info from the function call
     const { data, error, isApiError, isPermissionError } = await getEvaluationData();
+    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'pitch-perfect-ai-qpv8g';
 
     if (error) {
         return (
@@ -70,11 +66,10 @@ export default async function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="mb-4">{error}</p>
-                            {/* Display the button if it's a known, actionable error */}
                             {isApiError && (
                                 <Button asChild>
                                     <Link 
-                                        href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=pitch-perfect-ai-qpv8g`}
+                                        href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${projectId}`}
                                         target="_blank"
                                     >
                                         Enable Firestore API
@@ -84,7 +79,7 @@ export default async function DashboardPage() {
                             {isPermissionError && !isApiError && (
                                 <Button asChild>
                                     <Link
-                                        href={`https://console.firebase.google.com/project/pitch-perfect-ai-qpv8g/firestore/rules`}
+                                        href={`https://console.firebase.google.com/project/${projectId}/firestore/rules`}
                                         target="_blank"
                                     >
                                         Check Security Rules
@@ -98,7 +93,6 @@ export default async function DashboardPage() {
         );
     }
   
-    // If there's no error, render the dashboard client with the data
     return (
         <div className="container mx-auto py-10">
             <DashboardClient data={data || []} />

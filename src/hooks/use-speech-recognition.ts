@@ -17,7 +17,6 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const manualStopRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -36,59 +35,61 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
-      manualStopRef.current = false;
     };
 
     recognition.onend = () => {
       setIsListening(false);
-      // Automatically restart listening unless it was manually stopped
-      if (!manualStopRef.current) {
-        recognition.start();
-      }
     };
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error', event.error);
        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setError("Microphone access denied. Please enable it in your browser settings.");
-        manualStopRef.current = true;
-      } else if (event.error !== 'aborted' && event.error !== 'no-speech') {
-         setError('An error occurred during speech recognition.');
-         manualStopRef.current = true;
+      } else if (event.error === 'aborted') {
+        // This can happen if the user stops the recognition manually.
+        // It's not a "real" error we need to show the user.
+      } else {
+         setError('An error occurred during speech recognition: ' + event.error);
       }
       setIsListening(false);
     };
 
     recognition.onresult = (event) => {
       let finalTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
+      let interimTranscript = '';
+      for (let i = 0; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
+        } else {
+          interimTranscript += event.results[i][0].transcript;
         }
       }
-      if(finalTranscript) {
-        setTranscript(prev => prev + finalTranscript + ' ');
-      }
+      setTranscript(finalTranscript + interimTranscript);
     };
 
     recognitionRef.current = recognition;
 
     return () => {
-      manualStopRef.current = true;
-      recognition.abort();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
     };
   }, []);
 
   const startListening = useCallback(() => {
     if (recognitionRef.current && !isListening) {
       setTranscript('');
-      recognitionRef.current.start();
+      try {
+        recognitionRef.current.start();
+      } catch (e) {
+        console.error("Error starting speech recognition:", e);
+        setError("Could not start microphone. Please check permissions.");
+      }
     }
   },[isListening]);
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
-      manualStopRef.current = true;
       recognitionRef.current.stop();
     }
   }, [isListening]);

@@ -18,26 +18,25 @@ const prompt = ai.definePrompt({
   name: 'scoreAndProvideFeedbackPrompt',
   input: {schema: ScoreAndFeedbackInputSchema},
   output: {schema: ScoreAndFeedbackOutputSchema},
-  prompt: `You are an expert evaluator for a startup pitch competition.
+  prompt: `You are an expert evaluator for a startup pitch competition. Your task is to provide a final evaluation based on a startup's pitch deck analysis and their performance in a voice Q&A session.
 
-You will use the pitch deck analysis and voice Q&A response to provide a score and feedback on the pitch.
+First, analyze the provided pitch deck information and the user's answers to the questions.
+Then, provide a score from 0 to 10 for each of the following five categories:
+- Innovation
+- Feasibility
+- Market Potential
+- Pitch Clarity
+- Problem-Solution Fit
 
-Evaluation Criteria:
-- Innovation (0-10)
-- Feasibility (0-10)
-- Market Potential (0-10)
-- Pitch Clarity (0-10)
-- Problem-Solution Fit (0-10)
+Finally, generate a concise and constructive feedback summary (3-5 sentences). This summary should highlight the startup's strengths and, most importantly, identify specific, actionable areas for improvement based on their answers and the pitch deck.
 
-Provide a score for each category and a feedback summary (3-5 sentences).
+**Pitch Deck Analysis:**
+{{{pitchDeckAnalysis}}}
 
-Pitch Deck Analysis: {{{pitchDeckAnalysis}}}
-Voice Q&A Response: {{{voiceQAResponse}}}
+**Voice Q&A Transcript (Questions, Answers, and preliminary scores/feedback):**
+{{{voiceQAResponse}}}
 
-Output should be in JSON format. Make sure scores are numbers.
-
-Here is the JSON schema:
-${JSON.stringify(ScoreAndFeedbackOutputSchema.description)}
+Please provide your final evaluation in the specified JSON format.
 `,
 });
 

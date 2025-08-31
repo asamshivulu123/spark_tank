@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -82,6 +83,18 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
   return (
     <div className="flex justify-center items-start">
       <Card className="w-full max-w-lg shadow-lg">
+        <div className="flex flex-col items-center pt-6 px-6">
+            <Image
+                src="/founders-hub-logo.png"
+                alt="Founders Hub Logo"
+                width={200}
+                height={50}
+                className="mb-2"
+            />
+            <p className="text-muted-foreground text-sm">
+                From idea to Impact with Founders Hub
+            </p>
+        </div>
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-center">AI Jury Evaluation</CardTitle>

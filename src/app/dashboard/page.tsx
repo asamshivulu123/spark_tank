@@ -54,42 +54,46 @@ export default async function DashboardPage() {
     error = { message, isApiError, isPermissionError };
   }
 
+  if (error) {
+      return (
+        <div className="container mx-auto py-10">
+          <div className="flex justify-center">
+            <Card className="w-full max-w-2xl text-center">
+              <CardHeader>
+                <CardTitle>Error Fetching Data</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4">{error.message}</p>
+                {error.isApiError && (
+                  <Button asChild>
+                    <Link 
+                      href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
+                      target="_blank"
+                    >
+                      Enable Firestore API
+                    </Button>
+                  </Button>
+                )}
+                 {error.isPermissionError && (
+                   <Button asChild>
+                    <Link
+                      href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
+                      target="_blank"
+                    >
+                      Check Security Rules
+                    </Link>
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      );
+  }
+
   return (
     <div className="container mx-auto py-10">
-      {error ? (
-        <div className="flex justify-center">
-          <Card className="w-full max-w-2xl text-center">
-            <CardHeader>
-              <CardTitle>Error Fetching Data</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-4">{error.message}</p>
-              {error.isApiError && (
-                <Button asChild>
-                  <Link 
-                    href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
-                    target="_blank"
-                  >
-                    Enable Firestore API
-                  </Button>
-                </Button>
-              )}
-               {error.isPermissionError && (
-                 <Button asChild>
-                  <Link
-                    href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
-                    target="_blank"
-                  >
-                    Check Security Rules
-                  </Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      ) : (
         <DashboardClient data={data} />
-      )}
     </div>
   );
 }

@@ -12,7 +12,6 @@ export const TeamResultSchema = z.object({
   pitchClarity: z.number(),
   problemSolutionFit: z.number(),
   feedbackSummary: z.string(),
-  pitchDeckUrl: z.string().optional(),
 });
 
 export type TeamResult = z.infer<typeof TeamResultSchema>;

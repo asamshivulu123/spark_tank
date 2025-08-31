@@ -1,32 +1,50 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+'use client';
+import { useEffect, useState } from 'react';
+import { getDashboardData } from '@/lib/actions';
+import type { TeamResult } from '@/lib/types';
+import { DashboardClient } from '@/components/dashboard-client';
+import { Loader2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardPage() {
+  const [data, setData] = useState<TeamResult[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const result = await getDashboardData();
+        setData(result);
+      } catch (e) {
+        console.error(e);
+        setError('Failed to load dashboard data. The data file might be missing or corrupted.');
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (error) {
     return (
         <div className="container mx-auto py-10">
-            <div className="flex justify-center">
-                <Card className="w-full max-w-2xl text-center">
-                    <CardHeader>
-                        <CardTitle>Dashboard Offline</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="mb-4">The database has been disconnected. This dashboard is no longer functional.</p>
-                        <Button asChild>
-                            <Link 
-                                href="/"
-                            >
-                                Back to Home
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
+            <Alert variant="destructive">
+                <AlertTitle>Error Loading Dashboard</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
         </div>
     );
+  }
+
+  if (!data) {
+    return (
+        <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto py-10">
+      <DashboardClient data={data} />
+    </div>
+  );
 }

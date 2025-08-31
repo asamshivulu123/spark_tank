@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AnalyzePitchDeckAndGenerateQuestionsOutput, ScoreAndFeedbackOutput } from '@/lib/types';
+import type { AnalyzePitchDeckAndGenerateQuestionsOutput, ScoreAndFeedbackOutput, AnswerFeedback } from '@/lib/types';
 import UploadStep from '@/components/upload-step';
 import QAStep from '@/components/qa-step';
 import ResultsStep from '@/components/results-step';

@@ -72,7 +72,24 @@ export async function scoreAndFeedbackAction(
   input: ScoreAndFeedbackInput
 ): Promise<ScoreAndFeedbackOutput> {
   try {
-    const output = await provideScoreAndFeedback(input);
+    const feedbackOutput = await provideScoreAndFeedback(input);
+    
+    // Calculate average scores from answers
+    const totalAnswers = input.answers.length;
+    const innovationScore = input.answers.reduce((sum, a) => sum + a.score, 0) / totalAnswers;
+    const feasibilityScore = innovationScore; // Using same score as example
+    const marketPotentialScore = innovationScore;
+    const pitchClarityScore = innovationScore;
+    const problemSolutionFitScore = innovationScore;
+
+    const output: ScoreAndFeedbackOutput = {
+      ...feedbackOutput,
+      innovationScore,
+      feasibilityScore,
+      marketPotentialScore,
+      pitchClarityScore,
+      problemSolutionFitScore,
+    };
     
     const allData = await readData();
     const totalScore = (

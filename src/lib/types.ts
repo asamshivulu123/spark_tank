@@ -43,6 +43,14 @@ export type AnalyzePitchDeckAndGenerateQuestionsOutput = z.infer<
   typeof AnalyzePitchDeckAndGenerateQuestionsOutputSchema
 >;
 
+export const AnswerFeedbackSchema = z.object({
+    question: z.string(),
+    answer: z.string(),
+    score: z.number(),
+    feedback: z.string(),
+});
+export type AnswerFeedback = z.infer<typeof AnswerFeedbackSchema>;
+
 
 export const AutomatedVoiceQAInputSchema = z.object({
   pitchDeckAnalysis: z
@@ -73,6 +81,7 @@ export const ScoreAndFeedbackInputSchema = z.object({
     .describe('The response from the participant in the voice Q&A interaction.'),
   startupName: z.string().describe("The name of the startup."),
   founderName: z.string().describe("The name of the founder."),
+  answers: z.array(AnswerFeedbackSchema).describe("An array of answers with scores and feedback.")
 });
 export type ScoreAndFeedbackInput = z.infer<typeof ScoreAndFeedbackInputSchema>;
 

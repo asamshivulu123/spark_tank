@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { AnalyzePitchDeckAndGenerateQuestionsOutput, ScoreAndFeedbackOutput } from '@/lib/types';
+import type { AnalyzePitchDeckAndGenerateQuestionsOutput, AnswerFeedback, ScoreAndFeedbackOutput } from '@/lib/types';
 import useSpeechRecognition from '@/hooks/use-speech-recognition';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,13 +17,6 @@ interface QAStepProps {
   onQaComplete: (scores: ScoreAndFeedbackOutput) => void;
   startupInfo: { startupName: string; founderName: string; pitchDeckDataUri: string; };
 }
-
-type AnswerFeedback = {
-  question: string;
-  answer: string;
-  score: number;
-  feedback: string;
-};
 
 export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QAStepProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -115,7 +108,8 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
         } else {
-            finishSession();
+            // Pass the final set of answers to the finish session
+            finishSession([...answers, newAnswer]);
         }
     } catch (e) {
         console.error(e);
@@ -135,17 +129,18 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     startListening();
   };
 
-  const finishSession = async () => {
+  const finishSession = async (finalAnswers: AnswerFeedback[]) => {
     setIsFinishing(true);
     try {
       const pitchDeckAnalysisString = JSON.stringify(analysisResult);
-      const voiceQAResponse = answers.map(a => `Q: ${a.question}\nA: ${a.answer}\nScore: ${a.score}\nFeedback: ${a.feedback}`).join('\n\n');
+      const voiceQAResponse = finalAnswers.map(a => `Q: ${a.question}\nA: ${a.answer}\nScore: ${a.score}\nFeedback: ${a.feedback}`).join('\n\n');
       
       const finalScores = await scoreAndFeedbackAction({
         pitchDeckAnalysis: pitchDeckAnalysisString,
         voiceQAResponse: voiceQAResponse,
         startupName: startupInfo.startupName,
         founderName: startupInfo.founderName,
+        answers: finalAnswers,
       });
       
       onQaComplete(finalScores);

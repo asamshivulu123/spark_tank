@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mic, MicOff, Volume2, Loader2, Send } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { getAudioFeedbackAction, scoreAndFeedbackAction } from '@/lib/actions';
+import { scoreAndFeedbackAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { getAudioFeedbackAction } from '@/lib/actions';
 
 interface QAStepProps {
   analysisResult: AnalyzePitchDeckAndGenerateQuestionsOutput;
@@ -142,7 +143,9 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
       
       const finalScores = await scoreAndFeedbackAction({
         pitchDeckAnalysis: pitchDeckAnalysisString,
-        voiceQAResponse: voiceQAResponse
+        voiceQAResponse: voiceQAResponse,
+        startupName: startupInfo.startupName,
+        founderName: startupInfo.founderName,
       });
 
       // Data is no longer saved to firebase

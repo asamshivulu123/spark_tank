@@ -18,6 +18,7 @@ import type {
     ScoreAndFeedbackInput,
     ScoreAndFeedbackOutput
 } from './types';
+import { appendToSheet } from '@/services/google-drive';
 
 
 export async function analyzeAndGenerateQuestionsAction(
@@ -49,6 +50,36 @@ export async function scoreAndFeedbackAction(
 ): Promise<ScoreAndFeedbackOutput> {
   try {
     const output = await provideScoreAndFeedback(input);
+
+    if (process.env.GOOGLE_SHEET_ID) {
+      try {
+        const totalScore = (
+          output.innovationScore +
+          output.feasibilityScore +
+          output.marketPotentialScore +
+          output.pitchClarityScore +
+          output.problemSolutionFitScore
+        ) / 5;
+
+        await appendToSheet([
+          new Date().toISOString(),
+          input.startupName,
+          input.founderName,
+          totalScore.toFixed(2),
+          output.innovationScore,
+          output.feasibilityScore,
+          output.marketPotentialScore,
+          output.pitchClarityScore,
+          output.problemSolutionFitScore,
+          output.feedbackSummary,
+        ]);
+      } catch (sheetsError) {
+        console.error('Failed to save data to Google Sheets:', sheetsError);
+        // We don't re-throw the error, so the user still sees their results
+        // even if the Google Sheets save fails.
+      }
+    }
+
     return output;
   } catch (error) {
     console.error('Error in scoreAndFeedbackAction:', error);

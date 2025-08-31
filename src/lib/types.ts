@@ -72,6 +72,8 @@ export const ScoreAndFeedbackInputSchema = z.object({
   voiceQAResponse: z
     .string()
     .describe('The response from the participant in the voice Q&A interaction.'),
+  startupName: z.string().describe("The name of the startup."),
+  founderName: z.string().describe("The name of the founder."),
 });
 export type ScoreAndFeedbackInput = z.infer<typeof ScoreAndFeedbackInputSchema>;
 

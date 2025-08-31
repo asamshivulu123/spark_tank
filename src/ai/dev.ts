@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/analyze-pitch-deck-and-generate-questions.ts';
+import '@/ai/flows/automated-voice-qa.ts';
+import '@/ai/flows/score-and-provide-feedback.ts';

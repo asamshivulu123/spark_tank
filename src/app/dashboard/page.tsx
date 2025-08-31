@@ -73,7 +73,7 @@ export default async function DashboardPage() {
                             {isApiError && (
                                 <Button asChild>
                                     <Link 
-                                        href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
+                                        href="https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=pitch-perfect-ai-qpv8g"
                                         target="_blank"
                                     >
                                         Enable Firestore API
@@ -83,7 +83,7 @@ export default async function DashboardPage() {
                             {isPermissionError && !isApiError && (
                                 <Button asChild>
                                     <Link
-                                        href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
+                                        href="https://console.firebase.google.com/project/pitch-perfect-ai-qpv8g/firestore/rules"
                                         target="_blank"
                                     >
                                         Check Security Rules

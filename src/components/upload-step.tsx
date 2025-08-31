@@ -83,7 +83,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <div className="flex flex-col items-center mb-6">
+      <div className="flex flex-col items-center text-center mb-6">
         <Image
           src="https://ik.imagekit.io/ma8j7tc4p/file_000000009e006230bb897df63b4ca344%20(2).png?updatedAt=1756676907921"
           alt="Founders Hub Logo"
@@ -94,6 +94,9 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
         />
         <p className="text-foreground text-xl font-bold">
           From idea to Impact with Founders Hub
+        </p>
+        <p className="mt-4 text-muted-foreground max-w-2xl">
+          SparkTank, hosted by Founders Hub, is a dynamic platform for students and young entrepreneurs to pitch their innovative ideas, receive expert feedback, and compete for recognition and mentorship. It’s designed to ignite creativity, encourage bold thinking, and help the next generation of innovators turn their ideas into reality.
         </p>
       </div>
       <Card className="w-full max-w-lg shadow-lg">

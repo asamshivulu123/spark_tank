@@ -39,7 +39,13 @@ async function readData(): Promise<TeamResult[]> {
 }
 
 async function writeData(data: TeamResult[]): Promise<void> {
-  await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+      await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
+      await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+      console.error("Failed to write to evaluations.json:", error);
+      throw new Error("Could not save evaluation data.");
+  }
 }
 
 
@@ -60,11 +66,13 @@ export async function getAudioFeedbackAction(
 ): Promise<AutomatedVoiceQAOutput> {
   try {
     const output = await automatedVoiceQA(input);
-    return output;
+    // Ensure the score is a valid number, default to 0 if not.
+    const score = typeof output.score === 'number' && !isNaN(output.score) ? output.score : 0;
+    return { ...output, score };
   } catch (error)
  {
     console.error('Error in getAudioFeedbackAction:', error);
-    throw new Error('Failed to get audio feedback.');
+    throw new Error('Failed to get audio feedback from the AI. It might have returned an unexpected format.');
   }
 }
 
@@ -76,19 +84,21 @@ export async function scoreAndFeedbackAction(
     
     // Calculate average scores from answers
     const totalAnswers = input.answers.length;
-    const innovationScore = input.answers.reduce((sum, a) => sum + a.score, 0) / totalAnswers;
-    const feasibilityScore = innovationScore; // Using same score as example
-    const marketPotentialScore = innovationScore;
-    const pitchClarityScore = innovationScore;
-    const problemSolutionFitScore = innovationScore;
+    if (totalAnswers === 0) {
+        throw new Error("Cannot calculate final score without any answers.");
+    }
+    
+    // Ensure all scores are numbers before calculating average
+    const validScores = input.answers.map(a => typeof a.score === 'number' && !isNaN(a.score) ? a.score : 0);
+    const averageScore = validScores.reduce((sum, score) => sum + score, 0) / totalAnswers;
 
     const output: ScoreAndFeedbackOutput = {
       ...feedbackOutput,
-      innovationScore,
-      feasibilityScore,
-      marketPotentialScore,
-      pitchClarityScore,
-      problemSolutionFitScore,
+      innovationScore: averageScore,
+      feasibilityScore: averageScore,
+      marketPotentialScore: averageScore,
+      pitchClarityScore: averageScore,
+      problemSolutionFitScore: averageScore,
     };
     
     const allData = await readData();
@@ -120,7 +130,7 @@ export async function scoreAndFeedbackAction(
     return output;
   } catch (error) {
     console.error('Error in scoreAndFeedbackAction:', error);
-    throw new Error('Failed to score and provide feedback.');
+    throw new Error('Failed to calculate and save the final score.');
   }
 }
 

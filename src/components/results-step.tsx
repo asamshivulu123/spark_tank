@@ -52,7 +52,7 @@ export default function ResultsStep({ finalScores, onRestart }: ResultsStepProps
             <CardTitle className="font-headline text-4xl mt-2">Evaluation Complete!</CardTitle>
             <CardDescription className="text-lg">Here's your final score and feedback from the AI Jury.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-8 items-center">
+        <CardContent className="grid md:grid-cols-2 gap-8 items-center pt-6">
             <div className="space-y-6">
                 <Card>
                     <CardHeader>
@@ -89,12 +89,12 @@ export default function ResultsStep({ finalScores, onRestart }: ResultsStepProps
                 </ResponsiveContainer>
             </div>
         </CardContent>
-        <CardContent className="text-center mt-4">
+        <CardFooter className="justify-center pt-6">
             <Button onClick={onRestart}>
                 <RefreshCcw className="mr-2 h-4 w-4" />
                 Start a New Evaluation
             </Button>
-        </CardContent>
+        </CardFooter>
       </Card>
     </div>
   );

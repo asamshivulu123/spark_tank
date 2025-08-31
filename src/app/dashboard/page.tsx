@@ -27,7 +27,7 @@ async function getEvaluationData(): Promise<TeamResult[]> {
       return {
         id: doc.id,
         ...data,
-        timestamp: timestamp.toDate().toISOString(),
+        timestamp: timestamp?.toDate().toISOString() || new Date().toISOString(),
       } as TeamResult;
     });
 }
@@ -35,19 +35,23 @@ async function getEvaluationData(): Promise<TeamResult[]> {
 
 export default async function DashboardPage() {
   let data: TeamResult[] = [];
-  let error: { message: string, isApiError: boolean } | null = null;
+  let error: { message: string; isApiError: boolean, isPermissionError: boolean } | null = null;
 
   try {
     data = await getEvaluationData();
   } catch (e: any) {
     console.error(e);
     const isApiError = e.message.includes('Cloud Firestore API has not been used');
-    error = {
-      message: isApiError
-        ? 'The Cloud Firestore API is not enabled for your project. Please enable it to continue.'
-        : 'Failed to fetch data from Firebase. Please check your Firebase project setup and security rules.',
-      isApiError,
-    };
+    const isPermissionError = e.message.includes('permission-denied') || e.message.includes('PERMISSION_DENIED');
+    let message = 'Failed to fetch data from Firebase. Please check your Firebase project setup.';
+    
+    if (isApiError) {
+      message = 'The Cloud Firestore API is not enabled for your project. Please enable it to continue.';
+    } else if (isPermissionError) {
+      message = "You don't have permission to access Firestore data. Please check your project's security rules in the Firebase console.";
+    }
+
+    error = { message, isApiError, isPermissionError };
   }
 
   return (
@@ -63,10 +67,20 @@ export default async function DashboardPage() {
               {error.isApiError && (
                 <Button asChild>
                   <Link 
-                    href="https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=pitch-perfect-ai-qpv8g" 
+                    href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
                     target="_blank"
                   >
                     Enable Firestore API
+                  </Button>
+                </Button>
+              )}
+               {error.isPermissionError && (
+                 <Button asChild>
+                  <Link
+                    href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
+                    target="_blank"
+                  >
+                    Check Security Rules
                   </Link>
                 </Button>
               )}

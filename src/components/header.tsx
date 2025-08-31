@@ -39,9 +39,11 @@ export default function Header() {
           </Link>
         </nav>
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <Button>
-            <LayoutDashboard className="mr-2 h-4 w-4" />
-            Organizer Login
+          <Button asChild>
+            <Link href="/organizer-login">
+              <LayoutDashboard className="mr-2 h-4 w-4" />
+              Organizer Login
+            </Link>
           </Button>
         </div>
       </div>

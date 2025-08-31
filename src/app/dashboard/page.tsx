@@ -1,69 +1,78 @@
+import { getSheetData } from '@/lib/sheets';
 import { DashboardClient } from '@/components/dashboard-client';
 import type { TeamResult } from '@/lib/types';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { FileWarning } from 'lucide-react';
 
-const mockData: TeamResult[] = [
-  {
-    id: 'team-001',
-    name: 'InnovateX',
-    totalScore: 8.8,
-    innovation: 9,
-    feasibility: 8,
-    marketPotential: 9,
-    pitchClarity: 10,
-    problemSolutionFit: 8,
-    summary: 'Strong concept with a clear go-to-market strategy. High potential.',
-  },
-  {
-    id: 'team-002',
-    name: 'Synergy AI',
-    totalScore: 7.2,
-    innovation: 8,
-    feasibility: 6,
-    marketPotential: 8,
-    pitchClarity: 7,
-    problemSolutionFit: 7,
-    summary: 'Innovative tech but feasibility concerns need to be addressed.',
-  },
-  {
-    id: 'team-003',
-    name: 'EcoSolutions',
-    totalScore: 8.1,
-    innovation: 7,
-    feasibility: 9,
-    marketPotential: 8,
-    pitchClarity: 8,
-    problemSolutionFit: 8.5,
-    summary: 'Very feasible and addresses a real-world problem. Market adoption is key.',
-  },
-  {
-    id: 'team-004',
-    name: 'HealthBridge',
-    totalScore: 6.5,
-    innovation: 6,
-    feasibility: 7,
-    marketPotential: 7,
-    pitchClarity: 6,
-    problemSolutionFit: 6.5,
-    summary: 'Pitch was unclear in certain areas. Competitive landscape is a major challenge.',
-  },
-  {
-    id: 'team-005',
-    name: 'QuantumLeap',
-    totalScore: 9.2,
-    innovation: 10,
-    feasibility: 7,
-    marketPotential: 10,
-    pitchClarity: 9,
-    problemSolutionFit: 10,
-    summary: 'Potentially market-defining innovation. High risk, high reward.',
-  },
-];
+export default async function DashboardPage() {
+  let data: TeamResult[] = [];
+  let error: string | null = null;
 
+  if (
+    !process.env.GOOGLE_SHEET_ID ||
+    !process.env.GOOGLE_SHEETS_CLIENT_EMAIL ||
+    !process.env.GOOGLE_SHEETS_PRIVATE_KEY
+  ) {
+    error =
+      'Google Sheets credentials are not configured. Please set up the environment variables to view the dashboard.';
+  } else {
+    try {
+      data = await getSheetData();
+    } catch (e) {
+      console.error(e);
+      error =
+        'Failed to fetch data from Google Sheets. Please check your sheet ID, sharing permissions, and service account credentials.';
+    }
+  }
 
-export default function DashboardPage() {
   return (
     <div className="container mx-auto py-10">
-      <DashboardClient data={mockData} />
+      {error ? (
+        <div className="flex justify-center">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <CardTitle>Configuration Error</CardTitle>
+              <CardDescription>
+                The dashboard cannot be displayed because it is not configured correctly.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Alert variant="destructive">
+                <FileWarning className="h-4 w-4" />
+                <AlertTitle>Missing Credentials</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+               <div className="mt-4 rounded-md bg-muted p-4 text-sm">
+                 <h4 className="font-semibold mb-2">How to fix this:</h4>
+                 <ol className="list-decimal list-inside space-y-2">
+                   <li>Make sure you have a Google Sheet created.</li>
+                   <li>
+                     Create a Google Cloud Service Account and download its JSON key.
+                   </li>
+                   <li>
+                     Share your Google Sheet with the service account's email address (`client_email` from the JSON key).
+                   </li>
+                   <li>
+                     Add the following environment variables to your `.env` file:
+                     <pre className="mt-2 p-2 bg-background rounded-md text-xs">
+                      {`GOOGLE_SHEET_ID="<your_sheet_id>"\nGOOGLE_SHEETS_CLIENT_EMAIL="<your_client_email>"\nGOOGLE_SHEETS_PRIVATE_KEY="<your_private_key>"`}
+                     </pre>
+                   </li>
+                 </ol>
+               </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <DashboardClient data={data} />
+      )}
     </div>
   );
 }

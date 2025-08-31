@@ -1,16 +1,21 @@
 import { z } from 'zod';
 
-export type TeamResult = {
-  id: string;
-  name: string;
-  totalScore: number;
-  innovation: number;
-  feasibility: number;
-  marketPotential: number;
-  pitchClarity: number;
-  problemSolutionFit: number;
-  summary: string;
-};
+export const TeamResultSchema = z.object({
+  id: z.string(),
+  timestamp: z.string(),
+  startupName: z.string(),
+  founderName: z.string(),
+  totalScore: z.number(),
+  innovation: z.number(),
+  feasibility: z.number(),
+  marketPotential: z.number(),
+  pitchClarity: z.number(),
+  problemSolutionFit: z.number(),
+  feedbackSummary: z.string(),
+});
+
+export type TeamResult = z.infer<typeof TeamResultSchema>;
+
 
 export const AnalyzePitchDeckAndGenerateQuestionsInputSchema = z.object({
   pitchDeckDataUri: z

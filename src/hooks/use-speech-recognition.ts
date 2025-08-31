@@ -28,9 +28,9 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false; // Changed to false for better accuracy
+    recognition.continuous = false;
     recognition.lang = 'en-US';
-    recognition.interimResults = false; // Changed to false for better accuracy
+    recognition.interimResults = false;
 
     recognition.onstart = () => {
       setIsListening(true);
@@ -42,7 +42,6 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error', event.error);
        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
         setError("Microphone access denied. Please enable it in your browser settings.");
       } else if (event.error === 'aborted') {
@@ -50,8 +49,8 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
         // It's not a "real" error we need to show the user.
       } else if (event.error === 'no-speech') {
         setError("No speech was detected. Please try again and speak clearly.");
-      }
-      else {
+      } else {
+         console.error('Speech recognition error', event.error);
          setError('An error occurred during speech recognition: ' + event.error);
       }
       setIsListening(false);

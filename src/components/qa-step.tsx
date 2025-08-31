@@ -194,7 +194,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
             </CardHeader>
             <CardContent className="space-y-6 text-center">
                 <div className="p-6 bg-secondary rounded-lg min-h-[100px] flex items-center justify-center">
-                    <p className="text-xl font-medium text-secondary-foreground">{currentQuestion}</p>
+                    <p className="text-xl font-medium text-secondary-foreground select-none">{currentQuestion}</p>
                 </div>
 
                 {!hasRecognitionSupport && (
@@ -226,6 +226,14 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                             className="min-h-[8rem] text-base"
                             value={editableTranscript}
                             onChange={(e) => setEditableTranscript(e.target.value)}
+                            onPaste={(e) => {
+                                e.preventDefault();
+                                toast({
+                                    variant: "destructive",
+                                    title: "Pasting is disabled",
+                                    description: "Please type your answer manually.",
+                                });
+                            }}
                             disabled={isProcessing}
                         />
                         <div className="flex justify-center gap-4">

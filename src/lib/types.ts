@@ -65,20 +65,6 @@ export const AutomatedVoiceQAOutputSchema = z.object({
 export type AutomatedVoiceQAOutput = z.infer<typeof AutomatedVoiceQAOutputSchema>;
 
 
-export const SaveToFirebaseInputSchema = z.object({
-  startupName: z.string().describe("The name of the startup."),
-  founderName: z.string().describe("The name of the founder."),
-  pitchDeckDataUri: z.string().describe("The pitch deck as a data URI."),
-  innovationScore: z.number().describe('The score for innovation (0-10).'),
-  feasibilityScore: z.number().describe('The score for feasibility (0-10).'),
-  marketPotentialScore: z.number().describe('The score for market potential (0-10).'),
-  pitchClarityScore: z.number().describe('The score for pitch clarity (0-10).'),
-  problemSolutionFitScore: z.number().describe('The score for problem-solution fit (0-10).'),
-  feedbackSummary: z.string().describe('A summary of the feedback (3-5 sentences).'),
-});
-export type SaveToFirebaseInput = z.infer<typeof SaveToFirebaseInputSchema>;
-
-
 export const ScoreAndFeedbackInputSchema = z.object({
   pitchDeckAnalysis: z
     .string()

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mic, MicOff, Volume2, Loader2, Send } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { getAudioFeedbackAction, scoreAndFeedbackAction, saveToFirebaseAction } from '@/lib/actions';
+import { getAudioFeedbackAction, scoreAndFeedbackAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
@@ -145,12 +145,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         voiceQAResponse: voiceQAResponse
       });
 
-      await saveToFirebaseAction({
-        startupName: startupInfo.startupName,
-        founderName: startupInfo.founderName,
-        pitchDeckDataUri: startupInfo.pitchDeckDataUri,
-        ...finalScores
-      });
+      // Data is no longer saved to firebase
       
       onQaComplete(finalScores);
 
@@ -159,7 +154,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
       toast({
         variant: 'destructive',
         title: 'Error finalizing results',
-        description: 'Could not calculate final scores or save data. Please try restarting.',
+        description: 'Could not calculate final scores. Please try restarting.',
       });
     } finally {
         setIsFinishing(false);
@@ -172,7 +167,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     return (
         <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
-            <h2 className="text-2xl font-headline mb-2">Calculating Final Scores & Saving...</h2>
+            <h2 className="text-2xl font-headline mb-2">Calculating Final Scores...</h2>
             <p className="text-muted-foreground">The AI Jury is deliberating. Please wait a moment.</p>
         </div>
     )

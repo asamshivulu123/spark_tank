@@ -9,9 +9,6 @@ import {
 import {
   provideScoreAndFeedback,
 } from '@/ai/flows/score-and-provide-feedback';
-import {
-  saveToFirebase,
-} from '@/ai/flows/save-to-firebase';
 
 import type { 
     AnalyzePitchDeckAndGenerateQuestionsInput, 
@@ -19,8 +16,7 @@ import type {
     AutomatedVoiceQAInput,
     AutomatedVoiceQAOutput,
     ScoreAndFeedbackInput,
-    ScoreAndFeedbackOutput,
-    SaveToFirebaseInput
+    ScoreAndFeedbackOutput
 } from './types';
 
 
@@ -58,15 +54,4 @@ export async function scoreAndFeedbackAction(
     console.error('Error in scoreAndFeedbackAction:', error);
     throw new Error('Failed to score and provide feedback.');
   }
-}
-
-export async function saveToFirebaseAction(
-  input: SaveToFirebaseInput
-): Promise<void> {
-    try {
-        await saveToFirebase(input);
-    } catch (error) {
-        console.error('Error in saveToFirebaseAction:', error);
-        throw new Error('Failed to save data to Firebase.');
-    }
 }

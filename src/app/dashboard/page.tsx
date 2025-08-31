@@ -11,52 +11,55 @@ import {
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-async function getEvaluationData(): Promise<{data: TeamResult[] | null, error: string | null}> {
+// This function now returns a more structured result
+async function getEvaluationData(): Promise<{ data: TeamResult[] | null; error: string | null; isApiError: boolean; isPermissionError: boolean; }> {
     try {
         const evaluationsCol = collection(db, 'evaluations');
+        // The 'createdAt' field is added by serverTimestamp, so we query by it.
         const q = query(evaluationsCol, orderBy('createdAt', 'desc'));
         const snapshot = await getDocs(q);
     
         if (snapshot.empty) {
-            return { data: [], error: null };
+            return { data: [], error: null, isApiError: false, isPermissionError: false };
         }
   
         const data = snapshot.docs.map(doc => {
             const docData = doc.data();
-            const timestamp = docData.createdAt as Timestamp;
+            const timestamp = docData.createdAt as Timestamp; // Firestore Timestamp
             return {
                 id: doc.id,
                 ...docData,
+                // Safely convert timestamp to ISO string
                 timestamp: timestamp?.toDate().toISOString() || new Date().toISOString(),
             } as TeamResult;
         });
 
-        return { data, error: null };
+        return { data, error: null, isApiError: false, isPermissionError: false };
 
     } catch (e: any) {
-        console.error(e);
-        const isApiError = e.message.includes('Cloud Firestore API has not been used');
-        const isPermissionError = e.message.includes('permission-denied') || e.message.includes('PERMISSION_DENIED');
+        console.error(e); // Log the full error for debugging
+        const errorMessage = e.message || 'An unknown error occurred.';
+        const isApiError = errorMessage.includes('Cloud Firestore API has not been used');
+        // A broader check for permission issues
+        const isPermissionError = errorMessage.includes('permission-denied') || errorMessage.includes('PERMISSION_DENIED');
         
+        let displayError = 'Failed to fetch data from Firebase. Please check your Firebase project setup.';
         if (isApiError) {
-            return { data: null, error: 'The Cloud Firestore API is not enabled for your project. Please enable it to continue.' };
-        } 
-        if (isPermissionError) {
-            return { data: null, error: "You don't have permission to access Firestore data. Please check your project's security rules in the Firebase console." };
+            displayError = 'The Cloud Firestore API is not enabled for your project. Please enable it to continue.';
+        } else if (isPermissionError) {
+            displayError = "You don't have permission to access Firestore data. Please check your project's security rules in the Firebase console.";
         }
         
-        return { data: null, error: 'Failed to fetch data from Firebase. Please check your Firebase project setup.' };
+        return { data: null, error: displayError, isApiError, isPermissionError };
     }
 }
 
 
 export default async function DashboardPage() {
-    const { data, error } = await getEvaluationData();
+    // Destructure the detailed error info from the function call
+    const { data, error, isApiError, isPermissionError } = await getEvaluationData();
 
     if (error) {
-        const isApiError = error.includes('Cloud Firestore API');
-        const isPermissionError = error.includes('permission-denied');
-
         return (
             <div className="container mx-auto py-10">
                 <div className="flex justify-center">
@@ -66,6 +69,7 @@ export default async function DashboardPage() {
                         </CardHeader>
                         <CardContent>
                             <p className="mb-4">{error}</p>
+                            {/* Display the button if it's a known, actionable error */}
                             {isApiError && (
                                 <Button asChild>
                                     <Link 
@@ -76,7 +80,7 @@ export default async function DashboardPage() {
                                     </Link>
                                 </Button>
                             )}
-                            {isPermissionError && (
+                            {isPermissionError && !isApiError && (
                                 <Button asChild>
                                     <Link
                                         href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
@@ -93,6 +97,7 @@ export default async function DashboardPage() {
         );
     }
   
+    // If there's no error, render the dashboard client with the data
     return (
         <div className="container mx-auto py-10">
             <DashboardClient data={data || []} />

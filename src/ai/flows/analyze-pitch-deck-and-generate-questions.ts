@@ -3,38 +3,12 @@
  * @fileOverview Analyzes a pitch deck and generates investor-style questions.
  *
  * - analyzePitchDeckAndGenerateQuestions - A function that analyzes the pitch deck and generates questions.
- * - AnalyzePitchDeckAndGenerateQuestionsInput - The input type for the analyzePitchDeckAndGenerateQuestions function.
- * - AnalyzePitchDeckAndGenerateQuestionsOutput - The return type for the analyzePitchDeckAndGenerateQuestions function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-
-const AnalyzePitchDeckAndGenerateQuestionsInputSchema = z.object({
-  pitchDeckDataUri: z
-    .string()
-    .describe(
-      "A pitch deck in PDF or PPTX format, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type AnalyzePitchDeckAndGenerateQuestionsInput = z.infer<
-  typeof AnalyzePitchDeckAndGenerateQuestionsInputSchema
->;
-
-const AnalyzePitchDeckAndGenerateQuestionsOutputSchema = z.object({
-  problem: z.string().describe('The problem the startup is trying to solve.'),
-  solution: z.string().describe('The solution the startup is providing.'),
-  marketSize: z.string().describe('The size of the target market.'),
-  businessModel: z.string().describe('The business model of the startup.'),
-  competition: z.string().describe('The competitive landscape.'),
-  risks: z.string().describe('The potential risks the startup faces.'),
-  investorQuestions: z
-    .array(z.string())
-    .describe('A list of investor-style questions generated from the pitch deck.'),
-});
-export type AnalyzePitchDeckAndGenerateQuestionsOutput = z.infer<
-  typeof AnalyzePitchDeckAndGenerateQuestionsOutputSchema
->;
+import type { AnalyzePitchDeckAndGenerateQuestionsInput, AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/lib/types';
+import { AnalyzePitchDeckAndGenerateQuestionsInputSchema, AnalyzePitchDeckAndGenerateQuestionsOutputSchema } from '@/lib/types';
 
 export async function analyzePitchDeckAndGenerateQuestions(
   input: AnalyzePitchDeckAndGenerateQuestionsInput

@@ -3,44 +3,12 @@
  * @fileOverview Provides a score and feedback on a pitch deck based on several categories.
  *
  * - provideScoreAndFeedback - A function that handles the scoring and feedback process.
- * - ScoreAndFeedbackInput - The input type for the provideScoreAndFeedback function.
- * - ScoreAndFeedbackOutput - The return type for the provideScoreAndFeedback function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import type { ScoreAndFeedbackInput, ScoreAndFeedbackOutput } from '@/lib/types';
+import { ScoreAndFeedbackInputSchema, ScoreAndFeedbackOutputSchema } from '@/lib/types';
 
-const ScoreAndFeedbackInputSchema = z.object({
-  pitchDeckAnalysis: z
-    .string()
-    .describe('The analysis of the pitch deck, including problem, solution, market size, business model, competition, and risks.'),
-  voiceQAResponse: z
-    .string()
-    .describe('The response from the participant in the voice Q&A interaction.'),
-});
-export type ScoreAndFeedbackInput = z.infer<typeof ScoreAndFeedbackInputSchema>;
-
-const ScoreAndFeedbackOutputSchema = z.object({
-  innovationScore: z
-    .number()
-    .describe('The score for innovation (0-10).'),
-  feasibilityScore: z
-    .number()
-    .describe('The score for feasibility (0-10).'),
-  marketPotentialScore: z
-    .number()
-    .describe('The score for market potential (0-10).'),
-  pitchClarityScore: z
-    .number()
-    .describe('The score for pitch clarity (0-10).'),
-  problemSolutionFitScore: z
-    .number()
-    .describe('The score for problem-solution fit (0-10).'),
-  feedbackSummary: z
-    .string()
-    .describe('A summary of the feedback (3-5 sentences).'),
-});
-export type ScoreAndFeedbackOutput = z.infer<typeof ScoreAndFeedbackOutputSchema>;
 
 export async function provideScoreAndFeedback(input: ScoreAndFeedbackInput): Promise<ScoreAndFeedbackOutput> {
   return scoreAndProvideFeedbackFlow(input);

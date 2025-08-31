@@ -2,23 +2,26 @@
 
 import {
   analyzePitchDeckAndGenerateQuestions,
-  type AnalyzePitchDeckAndGenerateQuestionsInput,
-  type AnalyzePitchDeckAndGenerateQuestionsOutput,
 } from '@/ai/flows/analyze-pitch-deck-and-generate-questions';
 import {
   automatedVoiceQA,
-  type AutomatedVoiceQAInput,
-  type AutomatedVoiceQAOutput,
 } from '@/ai/flows/automated-voice-qa';
 import {
   provideScoreAndFeedback,
-  type ScoreAndFeedbackInput,
-  type ScoreAndFeedbackOutput,
 } from '@/ai/flows/score-and-provide-feedback';
 import {
   saveToSheet,
-  type SaveToSheetInput,
 } from '@/ai/flows/save-to-sheet';
+
+import type { 
+    AnalyzePitchDeckAndGenerateQuestionsInput, 
+    AnalyzePitchDeckAndGenerateQuestionsOutput,
+    AutomatedVoiceQAInput,
+    AutomatedVoiceQAOutput,
+    ScoreAndFeedbackInput,
+    ScoreAndFeedbackOutput,
+    SaveToSheetInput
+} from './types';
 
 
 export async function analyzeAndGenerateQuestionsAction(

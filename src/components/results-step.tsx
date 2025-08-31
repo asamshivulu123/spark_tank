@@ -1,6 +1,6 @@
 'use client';
 
-import type { ScoreAndFeedbackOutput } from '@/ai/flows/score-and-provide-feedback';
+import type { ScoreAndFeedbackOutput } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Trophy, RefreshCcw } from 'lucide-react';

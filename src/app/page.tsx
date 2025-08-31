@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/ai/flows/analyze-pitch-deck-and-generate-questions';
-import type { ScoreAndFeedbackOutput } from '@/ai/flows/score-and-provide-feedback';
+import type { AnalyzePitchDeckAndGenerateQuestionsOutput, ScoreAndFeedbackOutput } from '@/lib/types';
 import UploadStep from '@/components/upload-step';
 import QAStep from '@/components/qa-step';
 import ResultsStep from '@/components/results-step';

@@ -4,28 +4,12 @@
  * @fileOverview An automated voice Q&A flow for pitch evaluation.
  *
  * - automatedVoiceQA - A function that initiates the voice-based Q&A process.
- * - AutomatedVoiceQAInput - The input type for the automatedVoiceQA function.
- * - AutomatedVoiceQAOutput - The return type for the automatedVoiceQA function.
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import type { AutomatedVoiceQAInput, AutomatedVoiceQAOutput } from '@/lib/types';
+import { AutomatedVoiceQAInputSchema, AutomatedVoiceQAOutputSchema } from '@/lib/types';
 
-const AutomatedVoiceQAInputSchema = z.object({
-  pitchDeckAnalysis: z
-    .string()
-    .describe('The analysis of the pitch deck, including generated questions.'),
-  userResponse: z
-    .string()
-    .describe('The user responses from voice converted to text.'),
-});
-export type AutomatedVoiceQAInput = z.infer<typeof AutomatedVoiceQAInputSchema>;
-
-const AutomatedVoiceQAOutputSchema = z.object({
-  score: z.number().describe('The score for the answer.'),
-  feedback: z.string().describe('The feedback for the answer.'),
-});
-export type AutomatedVoiceQAOutput = z.infer<typeof AutomatedVoiceQAOutputSchema>;
 
 export async function automatedVoiceQA(input: AutomatedVoiceQAInput): Promise<AutomatedVoiceQAOutput> {
   return automatedVoiceQAFlow(input);

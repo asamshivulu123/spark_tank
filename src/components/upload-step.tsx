@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { UploadCloud, Loader2, FileText, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { analyzeAndGenerateQuestionsAction } from '@/lib/actions';
-import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/ai/flows/analyze-pitch-deck-and-generate-questions';
+import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/lib/types';
 
 interface UploadStepProps {
   onAnalysisComplete: (result: AnalyzePitchDeckAndGenerateQuestionsOutput, startupName: string, founderName: string) => void;

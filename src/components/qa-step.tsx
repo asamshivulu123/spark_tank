@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/ai/flows/analyze-pitch-deck-and-generate-questions';
-import type { ScoreAndFeedbackOutput } from '@/ai/flows/score-and-provide-feedback';
+import type { AnalyzePitchDeckAndGenerateQuestionsOutput, ScoreAndFeedbackOutput } from '@/lib/types';
 import useSpeechRecognition from '@/hooks/use-speech-recognition';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

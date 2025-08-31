@@ -147,8 +147,6 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         startupName: startupInfo.startupName,
         founderName: startupInfo.founderName,
       });
-
-      // Data is no longer saved to firebase
       
       onQaComplete(finalScores);
 

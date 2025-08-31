@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 type SpeechRecognitionHook = {
   isListening: boolean;
   transcript: string;
   startListening: () => void;
   stopListening: () => void;
+  resetTranscript: () => void;
   hasRecognitionSupport: boolean;
   error: string | null;
 };
@@ -42,7 +43,9 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error', event.error);
-      setError(event.error === 'no-speech' ? 'No speech was detected.' : 'An error occurred during speech recognition.');
+      if (event.error !== 'aborted') {
+          setError(event.error === 'no-speech' ? 'No speech was detected.' : 'An error occurred during speech recognition.');
+      }
       setIsListening(false);
     };
 
@@ -63,28 +66,33 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     recognitionRef.current = recognition;
 
     return () => {
-      recognition.stop();
+      recognition.abort();
     };
   }, []);
 
-  const startListening = () => {
+  const startListening = useCallback(() => {
     if (recognitionRef.current && !isListening) {
       setTranscript('');
       recognitionRef.current.start();
     }
-  };
+  },[isListening]);
 
-  const stopListening = () => {
+  const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
       recognitionRef.current.stop();
     }
-  };
+  }, [isListening]);
+
+  const resetTranscript = useCallback(() => {
+    setTranscript('');
+  }, []);
 
   return {
     isListening,
     transcript,
     startListening,
     stopListening,
+    resetTranscript,
     hasRecognitionSupport: recognitionRef.current !== null && error === null,
     error,
   };

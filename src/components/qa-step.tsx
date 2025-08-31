@@ -37,6 +37,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     transcript,
     startListening,
     stopListening,
+    resetTranscript,
     hasRecognitionSupport,
     error,
   } = useSpeechRecognition();
@@ -99,6 +100,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         setAnswers(prev => [...prev, newAnswer]);
         
         speak(feedbackResult.feedback);
+        resetTranscript();
 
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
@@ -115,6 +117,14 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     } finally {
         setIsProcessing(false);
     }
+  };
+
+  const handleCancel = () => {
+    if (isListening) {
+      stopListening();
+    }
+    resetTranscript();
+    startListening();
   };
 
   const finishSession = async () => {
@@ -201,8 +211,8 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                             <p className="italic text-muted-foreground">{transcript || 'Your answer will appear here...'}</p>
                         </div>
                         <div className="flex justify-center gap-4">
-                            <Button variant="outline" onClick={() => setIsAnswering(false)}>Cancel</Button>
-                            <Button onClick={handleAnswerSubmission} disabled={!transcript || isListening}>
+                            <Button variant="outline" onClick={handleCancel}>Cancel & Restart</Button>
+                            <Button onClick={handleAnswerSubmission} disabled={!transcript}>
                                 <Send className="mr-2 h-4 w-4" />
                                 Submit Answer
                             </Button>

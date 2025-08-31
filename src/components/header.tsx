@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { Rocket, LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
 
 export default function Header() {
   const pathname = usePathname();
@@ -13,10 +14,13 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Rocket className="h-6 w-6 text-primary" />
-          <span className="font-bold sm:inline-block text-lg">
-            Pitch Perfect AI
-          </span>
+          <Image
+            src="https://ik.imagekit.io/ma8j7tc4p/1000422795.png?updatedAt=1756677286326"
+            alt="Founders Hub Logo"
+            width={180}
+            height={32}
+            priority
+          />
         </Link>
         <nav className="flex items-center space-x-4 lg:space-x-6">
           <Link

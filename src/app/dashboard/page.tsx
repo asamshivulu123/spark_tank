@@ -1,35 +1,45 @@
-import { getSheetData } from '@/lib/sheets';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, orderBy, query, Timestamp } from 'firebase/firestore';
 import { DashboardClient } from '@/components/dashboard-client';
 import type { TeamResult } from '@/lib/types';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { FileWarning } from 'lucide-react';
+
+async function getEvaluationData(): Promise<TeamResult[]> {
+    const evaluationsCol = collection(db, 'evaluations');
+    const q = query(evaluationsCol, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+      return [];
+    }
+  
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      // Firestore Timestamps need to be converted to strings to be serializable
+      const timestamp = data.createdAt as Timestamp;
+      return {
+        id: doc.id,
+        ...data,
+        timestamp: timestamp.toDate().toISOString(),
+      } as TeamResult;
+    });
+}
+
 
 export default async function DashboardPage() {
   let data: TeamResult[] = [];
   let error: string | null = null;
 
-  if (
-    !process.env.GOOGLE_SHEET_ID ||
-    !process.env.GOOGLE_SHEETS_CLIENT_EMAIL ||
-    !process.env.GOOGLE_SHEETS_PRIVATE_KEY
-  ) {
-    error =
-      'Google Sheets credentials are not configured. Please set up the environment variables to view the dashboard.';
-  } else {
-    try {
-      data = await getSheetData();
-    } catch (e) {
-      console.error(e);
-      error =
-        'Failed to fetch data from Google Sheets. Please check your sheet ID, sharing permissions, and service account credentials.';
-    }
+  try {
+    data = await getEvaluationData();
+  } catch (e) {
+    console.error(e);
+    error = 'Failed to fetch data from Firebase. Please check your Firebase project setup and security rules.';
   }
 
   return (
@@ -38,35 +48,10 @@ export default async function DashboardPage() {
         <div className="flex justify-center">
           <Card className="w-full max-w-2xl">
             <CardHeader>
-              <CardTitle>Configuration Error</CardTitle>
-              <CardDescription>
-                The dashboard cannot be displayed because it is not configured correctly.
-              </CardDescription>
+              <CardTitle>Error</CardTitle>
             </CardHeader>
             <CardContent>
-              <Alert variant="destructive">
-                <FileWarning className="h-4 w-4" />
-                <AlertTitle>Missing Credentials</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-               <div className="mt-4 rounded-md bg-muted p-4 text-sm">
-                 <h4 className="font-semibold mb-2">How to fix this:</h4>
-                 <ol className="list-decimal list-inside space-y-2">
-                   <li>Make sure you have a Google Sheet created.</li>
-                   <li>
-                     Create a Google Cloud Service Account and download its JSON key.
-                   </li>
-                   <li>
-                     Share your Google Sheet with the service account's email address (`client_email` from the JSON key).
-                   </li>
-                   <li>
-                     Add the following environment variables to your `.env` file:
-                     <pre className="mt-2 p-2 bg-background rounded-md text-xs">
-                      {`GOOGLE_SHEET_ID="<your_sheet_id>"\nGOOGLE_SHEETS_CLIENT_EMAIL="<your_client_email>"\nGOOGLE_SHEETS_PRIVATE_KEY="<your_private_key>"`}
-                     </pre>
-                   </li>
-                 </ol>
-               </div>
+              <p>{error}</p>
             </CardContent>
           </Card>
         </div>

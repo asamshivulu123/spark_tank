@@ -7,14 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mic, MicOff, Volume2, Loader2, Send } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { getAudioFeedbackAction, scoreAndFeedbackAction, saveToSheetAction } from '@/lib/actions';
+import { getAudioFeedbackAction, scoreAndFeedbackAction, saveToFirebaseAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface QAStepProps {
   analysisResult: AnalyzePitchDeckAndGenerateQuestionsOutput;
   onQaComplete: (scores: ScoreAndFeedbackOutput) => void;
-  startupInfo: { startupName: string; founderName: string };
+  startupInfo: { startupName: string; founderName: string; pitchDeckDataUri: string; };
 }
 
 type AnswerFeedback = {
@@ -85,8 +85,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
             title: "No answer recorded",
             description: "Please provide an answer to the question.",
         });
-        // Allow user to try again without moving to next question
-        setIsAnswering(true); 
+        setIsAnswering(false);
         return;
     }
 
@@ -145,9 +144,10 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         voiceQAResponse: voiceQAResponse
       });
 
-      await saveToSheetAction({
+      await saveToFirebaseAction({
         startupName: startupInfo.startupName,
         founderName: startupInfo.founderName,
+        pitchDeckDataUri: startupInfo.pitchDeckDataUri,
         ...finalScores
       });
       
@@ -210,7 +210,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                            ) : (
                              <div className="flex flex-col items-center gap-2">
                                 <MicOff className="h-10 w-10 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">Mic is off. An error might have occurred.</p>
+                                <p className="text-sm text-muted-foreground">Mic is off. Click cancel to retry.</p>
                             </div>
                            )}
                         </div>
@@ -219,7 +219,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                         </div>
                         <div className="flex justify-center gap-4">
                             <Button variant="outline" onClick={handleCancelAndRestart}>Cancel & Restart</Button>
-                            <Button onClick={handleAnswerSubmission} disabled={!transcript || isProcessing}>
+                            <Button onClick={handleAnswerSubmission} disabled={isProcessing}>
                                 {isProcessing ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

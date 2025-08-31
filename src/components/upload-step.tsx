@@ -11,7 +11,7 @@ import { analyzeAndGenerateQuestionsAction } from '@/lib/actions';
 import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/lib/types';
 
 interface UploadStepProps {
-  onAnalysisComplete: (result: AnalyzePitchDeckAndGenerateQuestionsOutput, startupName: string, founderName: string) => void;
+  onAnalysisComplete: (result: AnalyzePitchDeckAndGenerateQuestionsOutput, startupName: string, founderName: string, pitchDeckDataUri: string) => void;
 }
 
 export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
@@ -66,7 +66,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
         title: 'Analysis Complete',
         description: 'Your pitch deck has been analyzed. The Q&amp;A will begin shortly.',
       });
-      onAnalysisComplete(result, startupName, founderName);
+      onAnalysisComplete(result, startupName, founderName, dataUri);
     } catch (error) {
       console.error(error);
       toast({

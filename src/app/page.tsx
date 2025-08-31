@@ -12,15 +12,16 @@ export default function Home() {
   const [step, setStep] = useState<Step>('upload');
   const [analysisResult, setAnalysisResult] = useState<AnalyzePitchDeckAndGenerateQuestionsOutput | null>(null);
   const [finalScores, setFinalScores] = useState<ScoreAndFeedbackOutput | null>(null);
-  const [startupInfo, setStartupInfo] = useState({ startupName: '', founderName: '' });
+  const [startupInfo, setStartupInfo] = useState({ startupName: '', founderName: '', pitchDeckDataUri: '' });
 
   const handleAnalysisComplete = (
     result: AnalyzePitchDeckAndGenerateQuestionsOutput,
     startupName: string,
-    founderName: string
+    founderName: string,
+    pitchDeckDataUri: string
   ) => {
     setAnalysisResult(result);
-    setStartupInfo({ startupName, founderName });
+    setStartupInfo({ startupName, founderName, pitchDeckDataUri });
     setStep('qa');
   };
 
@@ -33,7 +34,7 @@ export default function Home() {
     setStep('upload');
     setAnalysisResult(null);
     setFinalScores(null);
-    setStartupInfo({ startupName: '', founderName: '' });
+    setStartupInfo({ startupName: '', founderName: '', pitchDeckDataUri: '' });
   };
 
   return (

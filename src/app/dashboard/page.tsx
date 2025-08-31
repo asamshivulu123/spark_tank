@@ -34,11 +34,13 @@ async function getEvaluationData(): Promise<TeamResult[]> {
 
 
 export default async function DashboardPage() {
-  let data: TeamResult[] = [];
-  let error: { message: string; isApiError: boolean, isPermissionError: boolean } | null = null;
-
   try {
-    data = await getEvaluationData();
+    const data = await getEvaluationData();
+    return (
+      <div className="container mx-auto py-10">
+          <DashboardClient data={data} />
+      </div>
+    );
   } catch (e: any) {
     console.error(e);
     const isApiError = e.message.includes('Cloud Firestore API has not been used');
@@ -50,50 +52,40 @@ export default async function DashboardPage() {
     } else if (isPermissionError) {
       message = "You don't have permission to access Firestore data. Please check your project's security rules in the Firebase console.";
     }
-
-    error = { message, isApiError, isPermissionError };
-  }
-
-  if (error) {
-      return (
-        <div className="container mx-auto py-10">
-          <div className="flex justify-center">
-            <Card className="w-full max-w-2xl text-center">
-              <CardHeader>
-                <CardTitle>Error Fetching Data</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4">{error.message}</p>
-                {error.isApiError && (
-                  <Button asChild>
-                    <Link 
-                      href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
-                      target="_blank"
-                    >
-                      Enable Firestore API
-                    </Button>
+    
+    return (
+      <div className="container mx-auto py-10">
+        <div className="flex justify-center">
+          <Card className="w-full max-w-2xl text-center">
+            <CardHeader>
+              <CardTitle>Error Fetching Data</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="mb-4">{message}</p>
+              {isApiError && (
+                <Button asChild>
+                  <Link 
+                    href={`https://console.developers.google.com/apis/api/firestore.googleapis.com/overview?project=${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}`}
+                    target="_blank"
+                  >
+                    Enable Firestore API
                   </Button>
-                )}
-                 {error.isPermissionError && (
-                   <Button asChild>
-                    <Link
-                      href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
-                      target="_blank"
-                    >
-                      Check Security Rules
-                    </Link>
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+                </Button>
+              )}
+               {isPermissionError && (
+                 <Button asChild>
+                  <Link
+                    href={`https://console.firebase.google.com/project/${process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID}/firestore/rules`}
+                    target="_blank"
+                  >
+                    Check Security Rules
+                  </Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
         </div>
-      );
+      </div>
+    );
   }
-
-  return (
-    <div className="container mx-auto py-10">
-        <DashboardClient data={data} />
-    </div>
-  );
 }

@@ -11,11 +11,13 @@ import { analyzeAndGenerateQuestionsAction } from '@/lib/actions';
 import type { AnalyzePitchDeckAndGenerateQuestionsOutput } from '@/ai/flows/analyze-pitch-deck-and-generate-questions';
 
 interface UploadStepProps {
-  onAnalysisComplete: (result: AnalyzePitchDeckAndGenerateQuestionsOutput) => void;
+  onAnalysisComplete: (result: AnalyzePitchDeckAndGenerateQuestionsOutput, startupName: string, founderName: string) => void;
 }
 
 export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
   const [file, setFile] = useState<File | null>(null);
+  const [startupName, setStartupName] = useState('');
+  const [founderName, setFounderName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -47,11 +49,11 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!file) {
+    if (!file || !startupName || !founderName) {
       toast({
         variant: 'destructive',
-        title: 'No file selected',
-        description: 'Please select your pitch deck to continue.',
+        title: 'Missing Information',
+        description: 'Please fill out all fields and select your pitch deck.',
       });
       return;
     }
@@ -64,7 +66,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
         title: 'Analysis Complete',
         description: 'Your pitch deck has been analyzed. The Q&amp;A will begin shortly.',
       });
-      onAnalysisComplete(result);
+      onAnalysisComplete(result, startupName, founderName);
     } catch (error) {
       console.error(error);
       toast({
@@ -84,10 +86,32 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
           <CardHeader>
             <CardTitle className="text-2xl font-headline text-center">AI Jury Evaluation</CardTitle>
             <CardDescription className="text-center">
-              Upload your pitch deck to begin the evaluation.
+              Enter your details and upload your pitch deck to begin.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="startup-name">Startup Name</Label>
+              <Input
+                id="startup-name"
+                placeholder="e.g., InnovateX"
+                value={startupName}
+                onChange={(e) => setStartupName(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="founder-name">Founder's Name</Label>
+              <Input
+                id="founder-name"
+                placeholder="e.g., Jane Doe"
+                value={founderName}
+                onChange={(e) => setFounderName(e.target.value)}
+                required
+                disabled={isLoading}
+              />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="pitch-deck">Pitch Deck (PDF or PPTX, max 10MB)</Label>
               <div
@@ -141,7 +165,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={!file || isLoading}>
+            <Button type="submit" className="w-full" disabled={!file || isLoading || !startupName || !founderName}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

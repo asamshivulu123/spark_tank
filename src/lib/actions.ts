@@ -15,6 +15,11 @@ import {
   type ScoreAndFeedbackInput,
   type ScoreAndFeedbackOutput,
 } from '@/ai/flows/score-and-provide-feedback';
+import {
+  saveToSheet,
+  type SaveToSheetInput,
+} from '@/ai/flows/save-to-sheet';
+
 
 export async function analyzeAndGenerateQuestionsAction(
   input: AnalyzePitchDeckAndGenerateQuestionsInput
@@ -50,4 +55,15 @@ export async function scoreAndFeedbackAction(
     console.error('Error in scoreAndFeedbackAction:', error);
     throw new Error('Failed to score and provide feedback.');
   }
+}
+
+export async function saveToSheetAction(
+  input: SaveToSheetInput
+): Promise<void> {
+    try {
+        await saveToSheet(input);
+    } catch (error) {
+        console.error('Error in saveToSheetAction:', error);
+        throw new Error('Failed to save data to sheet.');
+    }
 }

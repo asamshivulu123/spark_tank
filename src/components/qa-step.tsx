@@ -8,13 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Mic, MicOff, Volume2, Loader2, Send } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { getAudioFeedbackAction, scoreAndFeedbackAction } from '@/lib/actions';
+import { getAudioFeedbackAction, scoreAndFeedbackAction, saveToSheetAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface QAStepProps {
   analysisResult: AnalyzePitchDeckAndGenerateQuestionsOutput;
   onQaComplete: (scores: ScoreAndFeedbackOutput) => void;
+  startupInfo: { startupName: string; founderName: string };
 }
 
 type AnswerFeedback = {
@@ -24,7 +25,7 @@ type AnswerFeedback = {
   feedback: string;
 };
 
-export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
+export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QAStepProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isAnswering, setIsAnswering] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -46,6 +47,7 @@ export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
 
   const speak = (text: string) => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel(); // Cancel any previous speech
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'en-US';
       window.speechSynthesis.speak(utterance);
@@ -97,10 +99,7 @@ export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
         };
         setAnswers(prev => [...prev, newAnswer]);
         
-        if (feedbackResult.audioResponse) {
-          const audio = new Audio(feedbackResult.audioResponse);
-          await audio.play();
-        }
+        speak(feedbackResult.feedback);
 
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
@@ -123,12 +122,19 @@ export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
     setIsFinishing(true);
     try {
       const pitchDeckAnalysisString = JSON.stringify(analysisResult);
-      const voiceQAResponse = answers.map(a => `Q: ${a.question}\nA: ${a.answer}`).join('\n\n');
+      const voiceQAResponse = answers.map(a => `Q: ${a.question}\nA: ${a.answer}\nScore: ${a.score}\nFeedback: ${a.feedback}`).join('\n\n');
       
       const finalScores = await scoreAndFeedbackAction({
         pitchDeckAnalysis: pitchDeckAnalysisString,
         voiceQAResponse: voiceQAResponse
       });
+
+      await saveToSheetAction({
+        startupName: startupInfo.startupName,
+        founderName: startupInfo.founderName,
+        ...finalScores
+      });
+      
       onQaComplete(finalScores);
 
     } catch (e) {
@@ -136,7 +142,7 @@ export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
       toast({
         variant: 'destructive',
         title: 'Error finalizing results',
-        description: 'Could not calculate final scores. Please try restarting.',
+        description: 'Could not calculate final scores or save data. Please try restarting.',
       });
     } finally {
         setIsFinishing(false);
@@ -149,7 +155,7 @@ export default function QAStep({ analysisResult, onQaComplete }: QAStepProps) {
     return (
         <div className="flex flex-col items-center justify-center h-full min-h-[50vh] text-center">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
-            <h2 className="text-2xl font-headline mb-2">Calculating Final Scores...</h2>
+            <h2 className="text-2xl font-headline mb-2">Calculating Final Scores & Saving...</h2>
             <p className="text-muted-foreground">The AI Jury is deliberating. Please wait a moment.</p>
         </div>
     )

@@ -92,7 +92,7 @@ export default function UploadStep({ onAnalysisComplete }: UploadStepProps) {
           className="mb-2"
           priority
         />
-        <p className="text-foreground text-base">
+        <p className="text-foreground text-xl font-bold">
           From idea to Impact with Founders Hub
         </p>
       </div>

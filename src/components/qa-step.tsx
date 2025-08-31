@@ -5,12 +5,13 @@ import type { AnalyzePitchDeckAndGenerateQuestionsOutput, AnswerFeedback, ScoreA
 import useSpeechRecognition from '@/hooks/use-speech-recognition';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mic, MicOff, Volume2, Loader2, Send } from 'lucide-react';
+import { Mic, MicOff, Volume2, Loader2, Send, Edit } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { scoreAndFeedbackAction } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { getAudioFeedbackAction } from '@/lib/actions';
+import { Textarea } from '@/components/ui/textarea';
 
 interface QAStepProps {
   analysisResult: AnalyzePitchDeckAndGenerateQuestionsOutput;
@@ -24,6 +25,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
   const [isProcessing, setIsProcessing] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [answers, setAnswers] = useState<AnswerFeedback[]>([]);
+  const [editableTranscript, setEditableTranscript] = useState('');
   const { toast } = useToast();
 
   const {
@@ -38,6 +40,11 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
   
   const questions = analysisResult.investorQuestions;
   const currentQuestion = questions[currentQuestionIndex];
+
+  useEffect(() => {
+    // When the raw transcript from the hook updates, update our editable state
+    setEditableTranscript(transcript);
+  }, [transcript]);
 
   const speak = (text: string) => {
     if (typeof window !== 'undefined' && window.speechSynthesis) {
@@ -68,15 +75,21 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
   const handleStartRecording = () => {
     setIsAnswering(true);
     resetTranscript();
+    setEditableTranscript('');
     startListening();
   }
   
-  const handleAnswerSubmission = async () => {
+  const handleStopRecordingAndEdit = () => {
     stopListening();
-    if (!transcript) {
+    // The user can now edit the text in the textarea.
+  };
+
+  const handleAnswerSubmission = async () => {
+    stopListening(); // Ensure listening is stopped
+    if (!editableTranscript.trim()) {
         toast({
             variant: "destructive",
-            title: "No answer recorded",
+            title: "No answer provided",
             description: "Please provide an answer to the question.",
         });
         setIsAnswering(false);
@@ -91,12 +104,12 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         const feedbackResult = await getAudioFeedbackAction({
             pitchDeckAnalysis: pitchDeckAnalysisString,
             question: currentQuestion,
-            userResponse: transcript,
+            userResponse: editableTranscript,
         });
 
         const newAnswer: AnswerFeedback = {
             question: currentQuestion,
-            answer: transcript,
+            answer: editableTranscript,
             score: feedbackResult.score,
             feedback: feedbackResult.feedback,
         };
@@ -104,6 +117,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
         
         speak(feedbackResult.feedback);
         resetTranscript();
+        setEditableTranscript('');
 
         if (currentQuestionIndex < questions.length - 1) {
             setCurrentQuestionIndex(prev => prev + 1);
@@ -126,6 +140,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
   const handleCancelAndRestart = () => {
     stopListening();
     resetTranscript();
+    setEditableTranscript('');
     startListening();
   };
 
@@ -173,7 +188,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     <div className="w-full max-w-3xl mx-auto">
         <Card className="shadow-2xl animate-fade-in">
             <CardHeader className="text-center">
-                <CardTitle className="font-headline text-3xl">AI Jury Q&amp;A</CardTitle>
+                <CardTitle className="font-headline text-3xl">AI Jury Q&A</CardTitle>
                 <p className="text-muted-foreground">Question {currentQuestionIndex + 1} of {questions.length}</p>
                 <Progress value={progressValue} className="w-full mt-2" />
             </CardHeader>
@@ -202,16 +217,31 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                            ) : (
                              <div className="flex flex-col items-center gap-2">
                                 <MicOff className="h-10 w-10 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">Mic is off. Click cancel to retry.</p>
+                                <p className="text-sm text-muted-foreground">Mic is off. You can now edit your answer.</p>
                             </div>
                            )}
                         </div>
-                        <div className="p-4 border rounded-md min-h-[6rem] bg-background text-left">
-                            <p className="italic text-muted-foreground">{transcript || 'Your answer will appear here...'}</p>
-                        </div>
+                        <Textarea
+                            placeholder="Your answer will appear here... You can edit it after recording."
+                            className="min-h-[8rem] text-base"
+                            value={editableTranscript}
+                            onChange={(e) => setEditableTranscript(e.target.value)}
+                            disabled={isProcessing}
+                        />
                         <div className="flex justify-center gap-4">
-                            <Button variant="outline" onClick={handleCancelAndRestart}>Cancel & Restart</Button>
-                            <Button onClick={handleAnswerSubmission} disabled={isProcessing}>
+                            {isListening ? (
+                                <Button variant="outline" onClick={handleStopRecordingAndEdit}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Stop and Edit
+                                </Button>
+                            ) : (
+                                <Button variant="outline" onClick={handleCancelAndRestart}>
+                                    <Mic className="mr-2 h-4 w-4" />
+                                    Re-record
+                                </Button>
+                            )}
+
+                            <Button onClick={handleAnswerSubmission} disabled={isProcessing || isListening}>
                                 {isProcessing ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

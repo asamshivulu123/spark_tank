@@ -21,14 +21,19 @@ export const saveToFirebaseFlow = ai.defineFlow(
     outputSchema: z.void(),
   },
   async (input) => {
+    let pitchDeckUrl = '';
     try {
-      let pitchDeckUrl = '';
       if (input.pitchDeckDataUri) {
           const storageRef = ref(storage, `pitch-decks/${input.startupName.replace(/\s+/g, '-')}-${Date.now()}.pdf`);
           const uploadResult = await uploadString(storageRef, input.pitchDeckDataUri, 'data_url');
           pitchDeckUrl = await getDownloadURL(uploadResult.ref);
       }
+    } catch (error) {
+        console.error('Error saving pitch deck to Firebase Storage:', error);
+        throw new Error('Failed to save pitch deck to Firebase Storage. Please check your Storage security rules.');
+    }
 
+    try {
       const totalScore = (
         input.innovationScore +
         input.feasibilityScore +
@@ -55,8 +60,8 @@ export const saveToFirebaseFlow = ai.defineFlow(
       await setDoc(docRef, evaluationData);
 
     } catch (error) {
-      console.error('Error saving to Firebase:', error);
-      throw new Error('Failed to save data to Firebase. This might be due to Firestore security rules or a disabled API.');
+      console.error('Error saving evaluation data to Firestore:', error);
+      throw new Error('Failed to save evaluation data to Firestore. This might be due to Firestore security rules or a disabled API.');
     }
   }
 );

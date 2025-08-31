@@ -28,7 +28,7 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.lang = 'en-US';
     recognition.interimResults = false;
 
@@ -50,7 +50,6 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
       } else if (event.error === 'no-speech') {
         setError("No speech was detected. Please try again and speak clearly.");
       } else {
-         console.error('Speech recognition error', event.error);
          setError('An error occurred during speech recognition: ' + event.error);
       }
       setIsListening(false);
@@ -58,14 +57,14 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
 
     recognition.onresult = (event) => {
       let finalTranscript = '';
-      for (let i = 0; i < event.results.length; ++i) {
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
-        } else {
-           finalTranscript += event.results[i][0].transcript;
         }
       }
-      setTranscript(finalTranscript);
+      if (finalTranscript) {
+        setTranscript(prev => prev + finalTranscript + ' ');
+      }
     };
 
     recognitionRef.current = recognition;

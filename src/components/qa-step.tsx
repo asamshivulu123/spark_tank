@@ -58,7 +58,8 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     if (currentQuestion) {
       speak(`Question ${currentQuestionIndex + 1}: ${currentQuestion}`);
     }
-  }, [currentQuestionIndex, currentQuestion]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuestionIndex]);
 
   useEffect(() => {
     if (error) {
@@ -69,15 +70,23 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
       });
     }
   }, [error, toast]);
+
+  const handleStartRecording = () => {
+    setIsAnswering(true);
+    resetTranscript();
+    startListening();
+  }
   
   const handleAnswerSubmission = async () => {
-    if (isListening) stopListening();
+    stopListening();
     if (!transcript) {
         toast({
             variant: "destructive",
             title: "No answer recorded",
             description: "Please provide an answer to the question.",
         });
+        // Allow user to try again without moving to next question
+        setIsAnswering(true); 
         return;
     }
 
@@ -119,10 +128,8 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
     }
   };
 
-  const handleCancel = () => {
-    if (isListening) {
-      stopListening();
-    }
+  const handleCancelAndRestart = () => {
+    stopListening();
     resetTranscript();
     startListening();
   };
@@ -203,7 +210,7 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                            ) : (
                              <div className="flex flex-col items-center gap-2">
                                 <MicOff className="h-10 w-10 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">Click to start recording</p>
+                                <p className="text-sm text-muted-foreground">Mic is off. An error might have occurred.</p>
                             </div>
                            )}
                         </div>
@@ -211,20 +218,26 @@ export default function QAStep({ analysisResult, onQaComplete, startupInfo }: QA
                             <p className="italic text-muted-foreground">{transcript || 'Your answer will appear here...'}</p>
                         </div>
                         <div className="flex justify-center gap-4">
-                            <Button variant="outline" onClick={handleCancel}>Cancel & Restart</Button>
-                            <Button onClick={handleAnswerSubmission} disabled={!transcript}>
-                                <Send className="mr-2 h-4 w-4" />
-                                Submit Answer
+                            <Button variant="outline" onClick={handleCancelAndRestart}>Cancel & Restart</Button>
+                            <Button onClick={handleAnswerSubmission} disabled={!transcript || isProcessing}>
+                                {isProcessing ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="mr-2 h-4 w-4" />
+                                        Submit Answer
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </div>
                 ) : (
                     <div className="flex justify-center items-center flex-col gap-4">
                         <Button
-                            onClick={() => {
-                                setIsAnswering(true);
-                                startListening();
-                            }}
+                            onClick={handleStartRecording}
                             size="lg"
                             className="w-64"
                             disabled={isProcessing || !hasRecognitionSupport}

@@ -17,6 +17,7 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
   const [transcript, setTranscript] = useState('');
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const manualStopRef = useRef(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -35,37 +36,45 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     recognition.onstart = () => {
       setIsListening(true);
       setError(null);
+      manualStopRef.current = false;
     };
 
     recognition.onend = () => {
       setIsListening(false);
+      // Automatically restart listening unless it was manually stopped
+      if (!manualStopRef.current) {
+        recognition.start();
+      }
     };
 
     recognition.onerror = (event) => {
       console.error('Speech recognition error', event.error);
-      if (event.error !== 'aborted') {
-          setError(event.error === 'no-speech' ? 'No speech was detected.' : 'An error occurred during speech recognition.');
+       if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        setError("Microphone access denied. Please enable it in your browser settings.");
+        manualStopRef.current = true;
+      } else if (event.error !== 'aborted' && event.error !== 'no-speech') {
+         setError('An error occurred during speech recognition.');
+         manualStopRef.current = true;
       }
       setIsListening(false);
     };
 
     recognition.onresult = (event) => {
-      let interimTranscript = '';
       let finalTranscript = '';
-
-      for (let i = 0; i < event.results.length; ++i) {
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
           finalTranscript += event.results[i][0].transcript;
-        } else {
-          interimTranscript += event.results[i][0].transcript;
         }
       }
-      setTranscript(finalTranscript + interimTranscript);
+      if(finalTranscript) {
+        setTranscript(prev => prev + finalTranscript + ' ');
+      }
     };
 
     recognitionRef.current = recognition;
 
     return () => {
+      manualStopRef.current = true;
       recognition.abort();
     };
   }, []);
@@ -79,6 +88,7 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
 
   const stopListening = useCallback(() => {
     if (recognitionRef.current && isListening) {
+      manualStopRef.current = true;
       recognitionRef.current.stop();
     }
   }, [isListening]);
@@ -93,7 +103,7 @@ const useSpeechRecognition = (): SpeechRecognitionHook => {
     startListening,
     stopListening,
     resetTranscript,
-    hasRecognitionSupport: recognitionRef.current !== null && error === null,
+    hasRecognitionSupport: !!recognitionRef.current,
     error,
   };
 };

@@ -23,18 +23,22 @@ import type {
 import fs from 'fs/promises';
 import path from 'path';
 
+// Place the data directory at the project root to avoid triggering Next.js hot-reloading.
 const dataFilePath = path.join(process.cwd(), 'data', 'evaluations.json');
 
 async function readData(): Promise<TeamResult[]> {
   try {
+    // Ensure the directory exists before trying to access the file
+    await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
     await fs.access(dataFilePath);
     const fileContent = await fs.readFile(dataFilePath, 'utf-8');
+    // If the file is empty or just whitespace, return an empty array
     if (fileContent.trim() === '') {
         return [];
     }
     return JSON.parse(fileContent);
   } catch (error) {
-    // If the file does not exist or is empty, return an empty array
+    // If the file does not exist, return an empty array
     return [];
   }
 }
@@ -83,27 +87,11 @@ export async function scoreAndFeedbackAction(
   try {
     const feedbackOutput = await provideScoreAndFeedback(input);
     
-    // Calculate average scores from answers
-    const totalAnswers = input.answers.length;
-    if (totalAnswers === 0) {
-        throw new Error("Cannot calculate final score without any answers.");
-    }
-    
-    // Ensure all scores are numbers before calculating average
-    const validScores = input.answers.map(a => typeof a.score === 'number' && !isNaN(a.score) ? a.score : 0);
-    const averageScore = validScores.reduce((sum, score) => sum + score, 0) / totalAnswers;
-
+    // The AI provides the final scores for each category directly.
     const output: ScoreAndFeedbackOutput = {
-      ...feedbackOutput,
-      innovationScore: averageScore,
-      feasibilityScore: averageScore,
-      marketPotentialScore: averageScore,
-      pitchClarityScore: averageScore,
-      problemSolutionFitScore: averageScore,
+      ...feedbackOutput
     };
     
-    // In a real application, you'd likely want to save results regardless of environment.
-    // The restart issue is a dev-server-only problem.
     const allData = await readData();
     const totalScore = (
         output.innovationScore +

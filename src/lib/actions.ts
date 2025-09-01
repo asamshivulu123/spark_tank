@@ -1,3 +1,4 @@
+
 'use server';
 
 import {
@@ -101,31 +102,34 @@ export async function scoreAndFeedbackAction(
       problemSolutionFitScore: averageScore,
     };
     
-    const allData = await readData();
-    const totalScore = (
-        output.innovationScore +
-        output.feasibilityScore +
-        output.marketPotentialScore +
-        output.pitchClarityScore +
-        output.problemSolutionFitScore
-    ) / 5;
+    if (process.env.NODE_ENV !== 'development') {
+      const allData = await readData();
+      const totalScore = (
+          output.innovationScore +
+          output.feasibilityScore +
+          output.marketPotentialScore +
+          output.pitchClarityScore +
+          output.problemSolutionFitScore
+      ) / 5;
 
-    const newResult: TeamResult = {
-        id: new Date().toISOString(),
-        timestamp: new Date().toISOString(),
-        startupName: input.startupName,
-        founderName: input.founderName,
-        totalScore: totalScore,
-        innovation: output.innovationScore,
-        feasibility: output.feasibilityScore,
-        marketPotential: output.marketPotentialScore,
-        pitchClarity: output.pitchClarityScore,
-        problemSolutionFit: output.problemSolutionFitScore,
-        feedbackSummary: output.feedbackSummary,
-    };
+      const newResult: TeamResult = {
+          id: new Date().toISOString(),
+          timestamp: new Date().toISOString(),
+          startupName: input.startupName,
+          founderName: input.founderName,
+          totalScore: totalScore,
+          innovation: output.innovationScore,
+          feasibility: output.feasibilityScore,
+          marketPotential: output.marketPotentialScore,
+          pitchClarity: output.pitchClarityScore,
+          problemSolutionFit: output.problemSolutionFitScore,
+          feedbackSummary: output.feedbackSummary,
+      };
 
-    allData.push(newResult);
-    await writeData(allData);
+      allData.push(newResult);
+      await writeData(allData);
+    }
+    
 
     return output;
   } catch (error) {

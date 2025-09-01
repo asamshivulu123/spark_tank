@@ -30,6 +30,7 @@ async function readData(): Promise<TeamResult[]> {
   try {
     // Ensure the directory exists before trying to access the file
     await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
+    // Check if file exists. If not, we'll handle it in the catch block.
     await fs.access(dataFilePath);
     const fileContent = await fs.readFile(dataFilePath, 'utf-8');
     // If the file is empty or just whitespace, return an empty array
@@ -38,17 +39,20 @@ async function readData(): Promise<TeamResult[]> {
     }
     return JSON.parse(fileContent);
   } catch (error) {
-    // If the file does not exist, return an empty array
+    // If the file does not exist (or other access errors), it's okay. 
+    // We'll create it when we write data. Return an empty array.
     return [];
   }
 }
 
 async function writeData(data: TeamResult[]): Promise<void> {
   try {
+      // Ensure the directory exists before writing.
       await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
       await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
       console.error("Failed to write to evaluations.json:", error);
+      // This is a critical error, so we should throw it to let the caller know.
       throw new Error("Could not save evaluation data.");
   }
 }
@@ -116,7 +120,13 @@ export async function scoreAndFeedbackAction(
     };
 
     allData.push(newResult);
-    await writeData(allData);
+    
+    // Only write to the file system in a non-development environment
+    // to prevent server restarts.
+    if (process.env.NODE_ENV !== 'development') {
+        await writeData(allData);
+    }
+
 
     return output;
   } catch (error) {

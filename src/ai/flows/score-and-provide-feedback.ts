@@ -31,18 +31,18 @@ const prompt = ai.definePrompt({
 ---
 ## YOUR TASK: FINAL EVALUATION
 
-Based on all the information, provide the final scores and a summary.
+Based on all the information, provide the final scores and a summary. Your final scores must be derived from the user's performance in the Q&A session.
 
 **1. Final Scores (0-10 for each category):**
-   - **Innovation**: How original and inventive is the idea?
-   - **Feasibility**: Can the team realistically build and execute this?
-   - **Market Potential**: How large is the opportunity and can the startup capture a significant share?
-   - **Pitch Clarity**: Was the core message clear and compelling in the deck and Q&A?
-   - **Problem-Solution Fit**: Does the solution genuinely solve a significant problem?
+   - **Innovation**: How original and inventive is the idea, as justified in their answers?
+   - **Feasibility**: Based on their answers, can the team realistically build and execute this?
+   - **Market Potential**: How large is the opportunity and can the startup capture a significant share, according to their Q&A responses?
+   - **Pitch Clarity**: Was the core message clear and compelling in the deck and, most importantly, during the Q&A?
+   - **Problem-Solution Fit**: Does the solution genuinely solve a significant problem, as defended in their answers?
 
 **2. Feedback Summary (3-5 sentences):**
-   - Summarize the key strengths of the startup.
-   - Summarize the primary weaknesses, risks, and areas for improvement.
+   - Summarize the key strengths of the startup, referencing their answers.
+   - Summarize the primary weaknesses, risks, and areas for improvement based on their Q&A performance.
    - Be professional, analytical, and constructive. Your feedback is critical for the founder.
 
 Please provide your final evaluation in the specified JSON format.

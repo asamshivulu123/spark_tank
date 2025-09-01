@@ -1,3 +1,4 @@
+
 'use server';
 
 import { google } from 'googleapis';
@@ -25,19 +26,27 @@ async function getAuth() {
 export async function appendToSheet(rowData: (string | number)[]) {
   const auth = await getAuth();
   const spreadsheetId = process.env.GOOGLE_SHEET_ID;
-  const range = 'A1'; // Appends after the last row with data
+  
+  // Use the sheet name 'Sheet1' and append data after the last row.
+  const range = 'Sheet1!A1'; 
 
   if (!spreadsheetId) {
     throw new Error('Google Sheet ID is not set in environment variables.');
   }
 
-  await sheets.spreadsheets.values.append({
-    auth,
-    spreadsheetId,
-    range,
-    valueInputOption: 'USER_ENTERED',
-    requestBody: {
-      values: [rowData],
-    },
-  });
+  try {
+      await sheets.spreadsheets.values.append({
+        auth,
+        spreadsheetId,
+        range,
+        valueInputOption: 'USER_ENTERED',
+        insertDataOption: 'INSERT_ROWS',
+        requestBody: {
+          values: [rowData],
+        },
+      });
+  } catch (e) {
+      console.error("Error appending to sheet:", e);
+      throw e;
+  }
 }

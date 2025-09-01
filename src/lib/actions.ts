@@ -22,37 +22,30 @@ import type {
 } from './types';
 import fs from 'fs/promises';
 import path from 'path';
+import { appendToSheet } from '@/services/google-drive';
 
-// Place the data directory at the project root to avoid triggering Next.js hot-reloading.
 const dataFilePath = path.join(process.cwd(), 'data', 'evaluations.json');
 
 async function readData(): Promise<TeamResult[]> {
   try {
-    // Ensure the directory exists before trying to access the file
     await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
-    // Check if file exists. If not, we'll handle it in the catch block.
     await fs.access(dataFilePath);
     const fileContent = await fs.readFile(dataFilePath, 'utf-8');
-    // If the file is empty or just whitespace, return an empty array
     if (fileContent.trim() === '') {
         return [];
     }
     return JSON.parse(fileContent);
   } catch (error) {
-    // If the file does not exist (or other access errors), it's okay. 
-    // We'll create it when we write data. Return an empty array.
     return [];
   }
 }
 
 async function writeData(data: TeamResult[]): Promise<void> {
   try {
-      // Ensure the directory exists before writing.
       await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
       await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
   } catch (error) {
       console.error("Failed to write to evaluations.json:", error);
-      // This is a critical error, so we should throw it to let the caller know.
       throw new Error("Could not save evaluation data.");
   }
 }
@@ -75,7 +68,6 @@ export async function getAudioFeedbackAction(
 ): Promise<AutomatedVoiceQAOutput> {
   try {
     const output = await automatedVoiceQA(input);
-    // Ensure the score is a valid number, default to 0 if not.
     const score = typeof output.score === 'number' && !isNaN(output.score) ? output.score : 0;
     return { ...output, score };
   } catch (error)
@@ -91,7 +83,6 @@ export async function scoreAndFeedbackAction(
   try {
     const feedbackOutput = await provideScoreAndFeedback(input);
     
-    // The AI provides the final scores for each category directly.
     const output: ScoreAndFeedbackOutput = {
       ...feedbackOutput
     };
@@ -120,13 +111,26 @@ export async function scoreAndFeedbackAction(
     };
 
     allData.push(newResult);
-    
-    // Only write to the file system in a non-development environment
-    // to prevent server restarts.
-    if (process.env.NODE_ENV !== 'development') {
-        await writeData(allData);
-    }
+    await writeData(allData);
 
+    try {
+        const sheetRow = [
+          newResult.timestamp,
+          newResult.startupName,
+          newResult.founderName,
+          newResult.totalScore,
+          newResult.innovation,
+          newResult.feasibility,
+          newResult.marketPotential,
+          newResult.pitchClarity,
+          newResult.problemSolutionFit,
+          newResult.feedbackSummary,
+        ];
+        await appendToSheet(sheetRow);
+    } catch (e) {
+        console.error("Failed to write to Google Sheet:", e);
+        // We don't want to fail the whole operation if the sheet write fails
+    }
 
     return output;
   } catch (error) {

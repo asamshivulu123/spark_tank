@@ -30,9 +30,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-   experimental: {
-    // This is required to allow requests from the development environment.
-    allowedDevOrigins: ["https://*.cloudworkstations.dev"],
+  swcMinify: true,
+  compiler: {
+    styledComponents: true,
   },
 };
 

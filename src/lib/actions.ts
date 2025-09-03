@@ -22,31 +22,44 @@ import type {
 } from './types';
 import fs from 'fs/promises';
 import path from 'path';
-import { appendToSheet } from '@/services/google-drive';
-
-const dataFilePath = path.join(process.cwd(), 'data', 'evaluations.json');
+import { supabase } from '@/lib/supabase';
 
 async function readData(): Promise<TeamResult[]> {
   try {
-    await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
-    await fs.access(dataFilePath);
-    const fileContent = await fs.readFile(dataFilePath, 'utf-8');
-    if (fileContent.trim() === '') {
-        return [];
-    }
-    return JSON.parse(fileContent);
+    const { data, error } = await supabase
+      .from('startups')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   } catch (error) {
+    console.error("Failed to read from Supabase:", error);
     return [];
   }
 }
 
-async function writeData(data: TeamResult[]): Promise<void> {
+async function writeData(startup: TeamResult): Promise<void> {
   try {
-      await fs.mkdir(path.dirname(dataFilePath), { recursive: true });
-      await fs.writeFile(dataFilePath, JSON.stringify(data, null, 2), 'utf-8');
+    const { error } = await supabase
+      .from('startups')
+      .insert([{
+        startup_name: startup.startupName,
+        founder_name: startup.founderName,
+        total_score: startup.totalScore,
+        innovation_score: startup.innovation,
+        feasibility_score: startup.feasibility,
+        market_potential_score: startup.marketPotential,
+        pitch_clarity_score: startup.pitchClarity,
+        problem_solution_fit_score: startup.problemSolutionFit,
+        feedback_summary: startup.feedbackSummary,
+        created_at: new Date().toISOString()
+      }]);
+
+    if (error) throw error;
   } catch (error) {
-      console.error("Failed to write to evaluations.json:", error);
-      throw new Error("Could not save evaluation data.");
+    console.error("Failed to write to Supabase:", error);
+    throw new Error("Could not save startup data.");
   }
 }
 
@@ -110,27 +123,7 @@ export async function scoreAndFeedbackAction(
         feedbackSummary: output.feedbackSummary,
     };
 
-    allData.push(newResult);
-    await writeData(allData);
-
-    try {
-        const sheetRow = [
-          newResult.timestamp,
-          newResult.startupName,
-          newResult.founderName,
-          newResult.totalScore,
-          newResult.innovation,
-          newResult.feasibility,
-          newResult.marketPotential,
-          newResult.pitchClarity,
-          newResult.problemSolutionFit,
-          newResult.feedbackSummary,
-        ];
-        await appendToSheet(sheetRow);
-    } catch (e) {
-        console.error("Failed to write to Google Sheet:", e);
-        // We don't want to fail the whole operation if the sheet write fails
-    }
+    await writeData(newResult);
 
     return output;
   } catch (error) {
